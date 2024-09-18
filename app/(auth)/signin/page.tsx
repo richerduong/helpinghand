@@ -2,7 +2,6 @@ import React from 'react';
 // import Image from 'next/image';
 // import { auth } from '@/lib/auth';
 // import { redirect } from 'next/navigation';
-// import background from '@/public/bgs/auth-bg.png';
 import SignInForm from './SignInForm';
 
 export default async function SignIn() {

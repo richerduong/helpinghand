@@ -8,7 +8,7 @@ import Image from 'next/image';
 import PasswordInput from './PasswordInput';
 import { validateEmail } from '@/utils/validations';
 import { useFormStore } from './FormStore';
-// import { checkEmailAvailability, SignIn } from '@/lib/actions';
+import { useRouter } from 'next/navigation';
 
 export default function SignInForm() {
   const {
@@ -21,12 +21,13 @@ export default function SignInForm() {
   } = useFormStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isEmailError, setIsEmailError] = useState<boolean>(true);
+  const router = useRouter();
 
   useEffect(() => {
     reset();
   }, [reset]);
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement> ) => {
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
 
@@ -40,32 +41,13 @@ export default function SignInForm() {
       return;
     }
 
-    // try {
-    //   const { available } = await checkEmailAvailability(email)
-
-    //   if (available) {
-    //     setError('There was no account found for this email, please try again.');
-    //     setIsEmailError(true);
-    //     setIsLoading(false);
-    //     return;
-    //   }
-
-    //   setError('');
-    // } catch (error) {
-    //   setError('An error occurred. Please try again later.');
-    //   setIsEmailError(true);
-    //   setIsLoading(false);
-    //   return;
-    // }
-
-    // setIsEmailError(false);
-    // try {
-    //   await SignIn({ email, password })
-    // } catch (error) {
-    //   setError('Invalid password, please try again.');
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    setIsEmailError(false);
+    
+    // Simulate loading and redirect after 2 seconds
+    setTimeout(() => {
+      setIsLoading(false);
+      router.push('/profile');
+    }, 2000);
   }
 
   const canSignIn = () => {
@@ -85,9 +67,7 @@ export default function SignInForm() {
         </Link>
       </h2>
       <div className="flex flex-col gap-y-3 w-full">
-        <Form.Field
-          name="email"
-        >
+        <Form.Field name="email">
           <Form.Control
             type="email"
             required
@@ -107,9 +87,7 @@ export default function SignInForm() {
             )}
           />
         </Form.Field>
-        <Form.Field
-          name="password"
-        >
+        <Form.Field name="password">
           <PasswordInput isError={!isEmailError} />
         </Form.Field>
         <span
@@ -129,9 +107,8 @@ export default function SignInForm() {
             'text-white border-[1.5px] border-b-4',
             'rounded-lg py-2 mt-1 w-full outline-none',
             {
-              'bg-primary border-[#1A7BB2] cursor-pointer': canSignIn(),
-              'hover:border-[1.5px] hover:transition-all duration-300 ease-in-out': canSignIn(),
-              'bg-orange border-darkorange-border cursor-not-allowed hover:bg-orange-button-hover': !canSignIn(),
+              'bg-primary border-darkorange-border cursor-pointer hover:bg-orange-button-hover': canSignIn(),
+              'bg-orange border-darkorange-border cursor-not-allowed': !canSignIn(),
             }
           )}
           disabled={!canSignIn()}
@@ -164,9 +141,6 @@ export default function SignInForm() {
           </div>
         </button>
       </div>
-      {/* <Link href="/reset" className="text-primary mt-3">
-        Forgot password?
-      </Link> */}
     </Form.Root>
   );
 }
