@@ -3,9 +3,3 @@ export async function checkEmailAvailability() {
     available: true
   };
 }
-
-export async function checkUsernameAvailability() {
-  return {
-    available: true
-  };
-}

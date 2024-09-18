@@ -1,6 +1,9 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import './globals.css';
+import { Hanken_Grotesk } from 'next/font/google';
+
+const hankenGrotesk = Hanken_Grotesk({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'HelpingHand',
@@ -14,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="flex flex-col min-h-screen">
+      <body className={`${hankenGrotesk.className} flex flex-col min-h-screen`}>
         <Navbar />
         <main className="flex-grow">
           {children}

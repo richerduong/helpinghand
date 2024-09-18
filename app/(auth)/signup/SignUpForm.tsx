@@ -4,7 +4,6 @@ import React, { useEffect } from 'react';
 import * as Form from '@radix-ui/react-form';
 import EmailStep from './EmailStep';
 import GettingStartedStep from './GettingStartedStep';
-import ProfileStep from './ProfileStep';
 import { useFormStore } from './FormStore';
 
 export default function SignUpForm() {
@@ -18,7 +17,6 @@ export default function SignUpForm() {
     <Form.Root className="flex flex-col items-center text-center w-full max-w-sm">
       <EmailStep />
       <GettingStartedStep />
-      <ProfileStep />
     </Form.Root>
   );
 }

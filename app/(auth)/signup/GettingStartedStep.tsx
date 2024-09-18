@@ -5,11 +5,12 @@ import React, { useState } from 'react';
 import { useFormStore } from './FormStore';
 import Link from 'next/link';
 import * as Form from '@radix-ui/react-form';
-import { checkEmailAvailability, checkUsernameAvailability } from '@/utils/api';
-import { validateEmail, validateUsername } from '@/utils/validations';
+import { checkEmailAvailability } from '@/utils/api';
+import { validateEmail } from '@/utils/validations';
 import Image from 'next/image';
 import PasswordInput from './PasswordInput';
 import PasswordRequirements from './PasswordRequirements';
+import { useRouter } from 'next/navigation';
 
 const validatePassword = (password: string): boolean => {
   const minLength = /.{8,}/;
@@ -31,43 +32,34 @@ const validatePassword = (password: string): boolean => {
 export default function GettingStartedStep() {
   const {
     step,
-    setStep,
     email,
     setEmail,
-    username,
-    setUsername,
     password
   } = useFormStore();
   const [isEmailAvailable, setIsEmailAvailable] = useState<boolean>(true);
-  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement> ) => {
     setEmail(e.target.value);
-  };
-
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement> ) => {
-    setUsername(e.target.value);
   };
 
   const handleContinue = async () => {
     setIsLoading(true);
 
     const { available: availableEmail } = await checkEmailAvailability()
-    const { available: availableUsername } = await checkUsernameAvailability();
 
     setIsEmailAvailable(availableEmail);
-    setIsUsernameAvailable(availableUsername);
 
-    if (availableEmail && availableUsername) {
-      setStep(step + 1);
+    if (availableEmail) {
+      router.push('/profile');
     }
 
     setIsLoading(false);
   };
 
   const canContinue = () => {
-    return validateEmail(email) && validateUsername(username) && validatePassword(password);
+    return validateEmail(email) && validatePassword(password);
   };
 
   return (
@@ -121,7 +113,7 @@ export default function GettingStartedStep() {
             )}
           />
         </Form.Field>
-        <Form.Field
+        {/* <Form.Field
           name="username"
           className="flex flex-col gap-y-1"
         >
@@ -153,7 +145,7 @@ export default function GettingStartedStep() {
               'outline-none focus:outline-none w-full'
             )}
           />
-        </Form.Field>
+        </Form.Field> */}
         <Form.Field
           name="password"
           className="flex flex-col gap-y-1"
@@ -199,7 +191,7 @@ export default function GettingStartedStep() {
                 }
               )}
             >
-              Continue
+              Create Account
             </span>
           </div>
         </button>
