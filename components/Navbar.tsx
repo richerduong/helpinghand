@@ -53,16 +53,16 @@ export default function Navbar() {
                   <NavigationMenu.Item>
                     <NavigationMenu.Link asChild>
                       <Link
-                        href="/about"
+                        href="/events/manage"
                         className={clsx(
                           'text-lg font-semibold hover:text-orange py-4',
                           {
-                            'text-orange border-b-4 border-orange': path === '/about',
-                            'text-navbar-text hover:text-orange': path !== '/about',
+                            'text-orange border-b-4 border-orange': path === '/events/manage',
+                            'text-navbar-text hover:text-orange': path !== '/events/manage',
                           }
                         )}
                       >
-                        About
+                        Event Management
                       </Link>
                     </NavigationMenu.Link>
                   </NavigationMenu.Item>
@@ -70,16 +70,48 @@ export default function Navbar() {
                   <NavigationMenu.Item>
                     <NavigationMenu.Link asChild>
                       <Link
-                        href="/get-involved"
+                        href="/events/matching"
                         className={clsx(
                           'text-lg font-semibold hover:text-orange py-4',
                           {
-                            'text-orange border-b-4 border-orange': path === '/get-involved',
-                            'text-navbar-text hover:text-orange': path !== '/get-involved',
+                            'text-orange border-b-4 border-orange': path === '/events/matching',
+                            'text-navbar-text hover:text-orange': path !== '/events/matching',
                           }
                         )}
                       >
-                        Get Involved
+                        Volunteer Matching
+                      </Link>
+                    </NavigationMenu.Link>
+                  </NavigationMenu.Item>
+                  <NavigationMenu.Item>
+                    <NavigationMenu.Link asChild>
+                      <Link
+                        href="/notifications"
+                        className={clsx(
+                          'text-lg font-semibold hover:text-orange py-4',
+                          {
+                            'text-orange border-b-4 border-orange': path === '/notifications',
+                            'text-navbar-text hover:text-orange': path !== '/notifications',
+                          }
+                        )}
+                      >
+                        Notifications
+                      </Link>
+                    </NavigationMenu.Link>
+                  </NavigationMenu.Item>
+                  <NavigationMenu.Item>
+                    <NavigationMenu.Link asChild>
+                      <Link
+                        href="/events/history"
+                        className={clsx(
+                          'text-lg font-semibold hover:text-orange py-4',
+                          {
+                            'text-orange border-b-4 border-orange': path === '/events/history',
+                            'text-navbar-text hover:text-orange': path !== '/events/history',
+                          }
+                        )}
+                      >
+                        History
                       </Link>
                     </NavigationMenu.Link>
                   </NavigationMenu.Item>
