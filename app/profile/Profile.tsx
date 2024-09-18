@@ -71,6 +71,45 @@ export default function Profile() {
     // Add more skills as needed
   ];
 
+  const validateProfile = () => {
+    const errors: string[] = [];
+
+    if (profileInfo.fullName.length > 50) {
+      errors.push('Full Name must not exceed 50 characters.');
+    }
+    if (profileInfo.address1.length > 100) {
+      errors.push('Address 1 must not exceed 100 characters.');
+    }
+    if (profileInfo.city.length > 100) {
+      errors.push('City must not exceed 100 characters.');
+    }
+    if (profileInfo.zipCode.length < 5 || profileInfo.zipCode.length > 9) {
+      errors.push('Zip Code must be between 5 and 9 characters.');
+    }
+    if (!profileInfo.state) {
+      errors.push('State is required.');
+    }
+    if (profileInfo.skills.length === 0) {
+      errors.push('At least one skill is required.');
+    }
+    if (profileInfo.availability.length === 0) {
+      errors.push('Availability is required.');
+    }
+
+    return errors;
+  };
+
+  const handleSubmit = () => {
+    const errors = validateProfile();
+    if (errors.length > 0) {
+      alert(errors.join('\n'));
+      return;
+    }
+
+    // Submit the form data
+    console.log('Profile info is valid:', profileInfo);
+  };
+
   // useEffect(() => {
   //   fetchProfileInfo();
   // }, [session]);
@@ -125,18 +164,17 @@ export default function Profile() {
       <h4 className="mt-2 text-base font-light text-darkgrey-text">
         Manage your account information.
       </h4>
-      <hr className="border-gray-300 w-full my-4"/>
+      <hr className="border-gray-300 w-full my-4" />
       <div className="flex w-full justify-between">
         <div className="flex flex-col w-full">
-          <form className="w-full text-sm text-black p-4 mb-4 rounded-xl bg-white rounded-tl-none">
+          <form className="w-full text-sm text-black p-4 mb-4 rounded-xl bg-white rounded-tl-none" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
             <FormInput
               label="Full Name"
               type="text"
               value={profileInfo.fullName}
               placeholder="Full Name"
-              onChange={(e) =>
-                setProfileInfo({ ...profileInfo, fullName: e.target.value })
-              }
+              onChange={(e) => setProfileInfo({ ...profileInfo, fullName: e.target.value })}
+              maxLength={50}
               required
             />
             <div className="mt-4">
@@ -146,9 +184,8 @@ export default function Profile() {
                   type="text"
                   value={profileInfo.address1}
                   placeholder="Address 1"
-                  onChange={(e) =>
-                    setProfileInfo({ ...profileInfo, address1: e.target.value })
-                  }
+                  onChange={(e) => setProfileInfo({ ...profileInfo, address1: e.target.value })}
+                  maxLength={100}
                   required
                 />
                 <FormInput
@@ -156,9 +193,8 @@ export default function Profile() {
                   type="text"
                   value={profileInfo.address2}
                   placeholder="Address 2"
-                  onChange={(e) =>
-                    setProfileInfo({ ...profileInfo, address2: e.target.value })
-                  }
+                  onChange={(e) => setProfileInfo({ ...profileInfo, address2: e.target.value })}
+                  maxLength={100}
                 />
               </div>
             </div>
@@ -169,18 +205,15 @@ export default function Profile() {
                   type="text"
                   value={profileInfo.city}
                   placeholder="City"
-                  onChange={(e) =>
-                    setProfileInfo({ ...profileInfo, city: e.target.value })
-                  }
+                  onChange={(e) => setProfileInfo({ ...profileInfo, city: e.target.value })}
+                  maxLength={100}
                   required
                 />
                 <Dropdown
                   label="State"
                   value={profileInfo.state}
                   options={stateOptions}
-                  onChange={(e) =>
-                    setProfileInfo({ ...profileInfo, state: e.target.value })
-                  }
+                  onChange={(e) => setProfileInfo({ ...profileInfo, state: e.target.value })}
                   required
                 />
               </div>
@@ -191,42 +224,39 @@ export default function Profile() {
                 type="text"
                 value={profileInfo.zipCode}
                 placeholder="Zip Code"
-                onChange={(e) =>
-                  setProfileInfo({ ...profileInfo, zipCode: e.target.value })
-                }
+                onChange={(e) => setProfileInfo({ ...profileInfo, zipCode: e.target.value })}
+                minLength={5}
+                maxLength={9}
                 required
               />
             </div>
             <div className="mt-4">
               <MultiSelectDropdown
-                  label="Skills"
-                  options={skillOptions}
-                  selectedOptions={profileInfo.skills}
-                  onChange={(selected) =>
-                    setProfileInfo({ ...profileInfo, skills: selected })
-                  }
-                  required
-                />
+                label="Skills"
+                options={skillOptions}
+                selectedOptions={profileInfo.skills}
+                onChange={(selected) => setProfileInfo({ ...profileInfo, skills: selected })}
+                required
+              />
             </div>
-            <div className='mt-4'>
+            <div className="mt-4">
               <TextArea
                 label="Preferences"
                 value={profileInfo.preferences}
                 placeholder="Enter your preferences"
-                onChange={(e) =>
-                  setProfileInfo({ ...profileInfo, preferences: e.target.value })
-                }
+                onChange={(e) => setProfileInfo({ ...profileInfo, preferences: e.target.value })}
               />
             </div>
-            <div className='mt-4'>
+            <div className="mt-4">
               <MultiDatePicker
                 label="Availability"
                 value={profileInfo.availability}
-                onChange={(selected) =>
-                  setProfileInfo({ ...profileInfo, availability: selected })
-                }
+                onChange={(selected) => setProfileInfo({ ...profileInfo, availability: selected })}
                 required
               />
+            </div>
+            <div className="flex justify-end">
+              <button type="submit" className="mt-6 bg-orange text-white py-2 px-4 rounded-lg">Save Profile</button>
             </div>
           </form>
         </div>

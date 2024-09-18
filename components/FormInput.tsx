@@ -8,6 +8,8 @@ interface FormInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
   disabled?: boolean;
+  maxLength?: number;
+  minLength?: number;
 }
 
 export function FormInput({
@@ -18,6 +20,8 @@ export function FormInput({
   onChange,
   required = false,
   disabled = false,
+  maxLength,
+  minLength,
 }: FormInputProps) {
   return (
     <div className="flex flex-col w-full gap-y-1">
@@ -31,6 +35,8 @@ export function FormInput({
         value={value}
         placeholder={placeholder}
         onChange={onChange}
+        maxLength={maxLength}
+        minLength={minLength}
         className={clsx(
           'bg-white border border-[#C5C9D6]',
           'w-full px-4 py-2 rounded',
