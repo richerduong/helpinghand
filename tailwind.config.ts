@@ -36,6 +36,7 @@ const config: Config = {
       },
       colors: {
         'orange': '#FE6524',
+        'red': '#FF2E47',
         'grey-bg': '#F1F5F7',
         'lightorange-box-bg': '#FDE7D8',
         'black-text' : '#353F42',
@@ -155,7 +156,6 @@ const config: Config = {
           '900': '#50515f',
           '950': '#2f3037',
         },
-        // ^^^
       },
       animation: {
         marquee: 'marquee var(--duration) linear infinite',

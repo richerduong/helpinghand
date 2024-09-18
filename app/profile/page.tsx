@@ -11,8 +11,8 @@ export default async function Settings() {
 
   return (
     <>
-      <div className="max-w-1170 w-full mx-auto flex h-full">
-        <div className="bg-white border-2 border-[#C5C9D6] mt-4 rounded-2xl p-12 mb-28">
+      <div className="max-w-1170 w-full mx-auto flex justify-center h-full">
+        <div className="bg-white border-2 border-[#C5C9D6] mt-4 rounded-2xl p-12 mb-4 w-4/5">
           {/* <Profile session={session} /> */}
           <Profile />
 

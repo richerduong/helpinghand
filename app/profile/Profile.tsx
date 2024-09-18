@@ -1,19 +1,29 @@
 'use client';
 
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 // import { Session } from 'next-auth';
-import clsx from 'clsx';
+// import clsx from 'clsx';
 // import toast from 'react-hot-toast';
-import { checkUsernameAvailability } from '@/utils/api';
-// import { getProfile, getUsername, updateProfile } from './actions';
+// import { getProfile, updateProfile } from './actions';
+import { FormInput } from '@/components/FormInput';
+import { Dropdown } from '@/components/Dropdown';
+import { MultiSelectDropdown } from '@/components/MultiSelectDropdown';
+import { TextArea } from '@/components/TextArea';
+import { Option } from '@/components/MultiSelectDropdown';
+import { MultiDatePicker } from '@/components/MultiDatePicker';
 
 interface ProfileInfo {
-  username: string;
-  newUsername: string,
   email: string;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   phoneNumber: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  skills: Option[];
+  preferences: string;
+  availability: Date[];
 }
 
 // interface ProfileProps {
@@ -23,60 +33,60 @@ interface ProfileInfo {
 export default function Profile() {
   // const [canEdit, setCanEdit] = useState<boolean>(false);
   const [profileInfo, setProfileInfo] = useState<ProfileInfo>({
-    username: '',
-    newUsername: '',
     email: '',
-    firstName: '',
-    lastName: '',
+    fullName: '',
     phoneNumber: '',
+    address1: '',
+    address2: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    skills: [],
+    preferences: '',
+    availability: [],
   });
-  const [availableUsername, setAvailableUsername] = useState<boolean>(true);
-  const [isUsernameValid, setIsUsernameValid] = useState(true);
+
+  // TODO: Move to DB to store states
+  const stateOptions = [
+    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+    'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+    'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+    'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+    'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+  ];
+
+  // TODO: Move to database and update skills
+  const skillOptions: Option[] = [
+    { label: 'First Aid', value: 'first-aid' },
+    { label: 'Event Management', value: 'event-management' },
+    { label: 'Fundraising', value: 'fundraising' },
+    { label: 'Teaching & Mentoring', value: 'teaching-mentoring' },
+    { label: 'Cooking', value: 'cooking' },
+    { label: 'Transportation Assistance', value: 'transportation-assistance' },
+    { label: 'Administrative Work', value: 'administrative-work' },
+    { label: 'Disaster Relief', value: 'disaster-relief' },
+    { label: 'Community Outreach', value: 'community-outreach' },
+    { label: 'Technical Support', value: 'technical-support' },
+    { label: 'Language Translation', value: 'language-translation' },
+    // Add more skills as needed
+  ];
 
   // useEffect(() => {
   //   fetchProfileInfo();
   // }, [session]);
 
-  const handleUsernameChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-
-    const { value } = e.target;
-
-    setProfileInfo({ ...profileInfo, newUsername: value });
-
-    const pattern = /^(?=.*[A-Za-z])[A-Za-z0-9_]+$/;
-    const isValid = pattern.test(value);
-
-    setIsUsernameValid(isValid);
-
-    setAvailableUsername(true);
-    if (isValid && profileInfo.username !== value) {
-      const { available } = await checkUsernameAvailability();
-
-      setAvailableUsername(available);
-    }
-  };
-
   // const handleUpdateProfile = async () => {
   //   // Validate profile info
-  //   if (!isUsernameValid || !availableUsername) {
-  //     toast.error('Invalid username.');
-  //     return;
-  //   }
-  //   if (!availableUsername) {
-  //     toast.error('Username unavailable.');
-  //     return;
-  //   }
-  //   if (!profileInfo.firstName || !profileInfo.lastName || !profileInfo.username) {
-  //     toast.error('First name, last name, and username are required.');
+  //   if (!profileInfo.fullName) {
+  //     toast.error('Full Name is required.');
   //     return;
   //   }
 
   //   try {
-  //     // const usernameResponse = await getUsername(session?.user?.id as string);
+  //     // const usernameResponse = await getAddress2(session?.user?.id as string);
       
-  //     // const { newUsername , ...rest } = profileInfo;
-  //     // const response = await updateProfile(session?.user?.id as string, { ...rest, username: newUsername });
+  //     // const { newAddress2 , ...rest } = profileInfo;
+  //     // const response = await updateProfile(session?.user?.id as string, { ...rest, username: newAddress2 });
 
   //     setCanEdit(false);
 
@@ -92,11 +102,8 @@ export default function Profile() {
   // }
 
   // const [oldProfileInfo, setOldProfileInfo] = useState<ProfileInfo>({
-  //   username: '',
-  //   newUsername: '',
   //   email: '',
-  //   firstName: '',
-  //   lastName: '',
+  //   fullName: '',
   //   phoneNumber: '',
   // });
   
@@ -120,168 +127,106 @@ export default function Profile() {
       </h4>
       <hr className="border-gray-300 w-full my-4"/>
       <div className="flex w-full justify-between">
-        <div className="flex flex-col w-1/4 items-center">
-          {/*
-            <button
-              className={clsx(
-                "flex items-center justify-center gap-x-2",
-                "bg-neutral-grey text-[#353F42]",
-                "rounded-full",
-                "border border-darkgrey-border",
-                "py-2 px-4 -mt-6",
-              )}
-              disabled
-            >
-              <UploadIcon width={20} height={20}/>
-              <span>Upload</span>
-            </button>
-          */}
-        </div>
-        <div className="flex flex-col w-full ml-24">
+        <div className="flex flex-col w-full">
           <form className="w-full text-sm text-black p-4 mb-4 rounded-xl bg-white rounded-tl-none">
-            <div className="flex w-full justify-between gap-x-6">
+            <FormInput
+              label="Full Name"
+              type="text"
+              value={profileInfo.fullName}
+              placeholder="Full Name"
+              onChange={(e) =>
+                setProfileInfo({ ...profileInfo, fullName: e.target.value })
+              }
+              required
+            />
+            <div className="mt-4">
               <div className="flex w-full justify-between gap-x-4">
-                <div className="flex flex-col w-full gap-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    First Name<span className="text-red">*</span>
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    className={clsx(
-                      'bg-white border border-[#C5C9D6]',
-                      'w-full px-4 py-2 rounded',
-                      'focus:outline-none focus:border-[#24AFFE]',
-                      'disabled:cursor-not-allowed disabled:bg-[#F0F0F0]'
-                    )}
-                    placeholder="First"
-                    value={profileInfo?.firstName}
-                    onChange={(e) => {
-                      setProfileInfo({ ...profileInfo, firstName: e.target.value });
-                    }}
-                    // disabled={!canEdit}
-                  />
-                </div>
-
-                <div className="flex flex-col w-full gap-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Last Name<span className="text-red">*</span>
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    className={clsx(
-                      'bg-white border border-[#C5C9D6]',
-                      'w-full px-4 py-2 rounded',
-                      'focus:outline-none focus:border-[#24AFFE]',
-                      'disabled:cursor-not-allowed disabled:bg-[#F0F0F0]'
-                    )}
-                    placeholder="Last"
-                    value={profileInfo?.lastName}
-                    onChange={(e) => {
-                      setProfileInfo({ ...profileInfo, lastName: e.target.value });
-                    }}
-                    // disabled={!canEdit}
-                  />
-                </div>
+                <FormInput
+                  label="Address 1"
+                  type="text"
+                  value={profileInfo.address1}
+                  placeholder="Address 1"
+                  onChange={(e) =>
+                    setProfileInfo({ ...profileInfo, address1: e.target.value })
+                  }
+                  required
+                />
+                <FormInput
+                  label="Address 2"
+                  type="text"
+                  value={profileInfo.address2}
+                  placeholder="Address 2"
+                  onChange={(e) =>
+                    setProfileInfo({ ...profileInfo, address2: e.target.value })
+                  }
+                />
               </div>
             </div>
             <div className="mt-4">
-              <div className="flex flex-col w-full gap-y-1">
-                <label className="flex justify-between text-sm font-normal text-gray-700">
-                  <span>Username<span className="text-red">*</span></span>
-                  <div className={clsx(
-                    {
-                      'hidden': profileInfo.username === profileInfo.newUsername,
-                    }
-                  )}>
-                    <span className={clsx(
-                      'text-[#DF0822]',
-                      {
-                        'hidden': isUsernameValid
-                      }
-                    )}>
-                      Only letters, numbers, and underscores
-                    </span>
-                    <span className={clsx(
-                      'text-[#DF0822]',
-                      {
-                        'hidden': !isUsernameValid || availableUsername
-                      }
-                    )}>
-                      Username is unavailable
-                    </span>
-                    <span className={clsx(
-                      'text-[#24AFFE]',
-                      {
-                        'hidden': !isUsernameValid || !availableUsername
-                      }
-                    )}>
-                      Username is available
-                    </span>
-                  </div>
-                </label>
-                <input
+              <div className="flex w-full justify-between gap-x-4">
+                <FormInput
+                  label="City"
+                  type="text"
+                  value={profileInfo.city}
+                  placeholder="City"
+                  onChange={(e) =>
+                    setProfileInfo({ ...profileInfo, city: e.target.value })
+                  }
                   required
-                  className={clsx(
-                    'bg-white border border-[#C5C9D6]',
-                    'w-full px-4 py-2 rounded',
-                    'focus:outline-none',
-                    {
-                      // 'border-[#24AFFE] focus:border-[#24AFFE]': canEdit && (isUsernameValid || availableUsername) && profileInfo.username !== profileInfo.newUsername,
-                      // 'border-[#DF0822] focus:border-[#DF0822]': canEdit && (!isUsernameValid || !availableUsername)
-                    },
-                    'disabled:cursor-not-allowed disabled:bg-[#F0F0F0]'
-                  )}
-                  pattern="^(?=.*[A-Za-z])[A-Za-z0-9_]+$"
-                  placeholder="Username"
-                  value={profileInfo.newUsername}
-                  onChange={handleUsernameChange}
-                  // disabled={!canEdit}
+                />
+                <Dropdown
+                  label="State"
+                  value={profileInfo.state}
+                  options={stateOptions}
+                  onChange={(e) =>
+                    setProfileInfo({ ...profileInfo, state: e.target.value })
+                  }
+                  required
                 />
               </div>
             </div>
-            <div className="flex w-full justify-between mt-4 gap-x-4">
-              <div className="flex flex-col w-full gap-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Email<span className="text-red">*</span>
-                </label>
-                <input
+            <div className="mt-4">
+              <FormInput
+                label="Zip Code"
+                type="text"
+                value={profileInfo.zipCode}
+                placeholder="Zip Code"
+                onChange={(e) =>
+                  setProfileInfo({ ...profileInfo, zipCode: e.target.value })
+                }
+                required
+              />
+            </div>
+            <div className="mt-4">
+              <MultiSelectDropdown
+                  label="Skills"
+                  options={skillOptions}
+                  selectedOptions={profileInfo.skills}
+                  onChange={(selected) =>
+                    setProfileInfo({ ...profileInfo, skills: selected })
+                  }
                   required
-                  type="email"
-                  className={clsx(
-                    'bg-white border border-[#C5C9D6]',
-                    'w-full px-4 py-2 rounded',
-                    'focus:outline-none focus:border-[#24AFFE]',
-                    'disabled:cursor-not-allowed disabled:bg-[#F0F0F0]'
-                  )}
-                  placeholder="email@example.com"
-                  value={profileInfo?.email}
-                  disabled
                 />
-              </div>
-              <div className="flex flex-col w-full gap-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Phone Number
-                </label>
-                <input
-                  required
-                  type="tel"
-                  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-                  className={clsx(
-                    'bg-white border border-[#C5C9D6]',
-                    'w-full px-4 py-2 rounded',
-                    'focus:outline-none focus:border-[#24AFFE]',
-                    'disabled:cursor-not-allowed disabled:bg-[#F0F0F0]'
-                  )}
-                  placeholder="xxx-xxx-xxxx"
-                  value={profileInfo?.phoneNumber}
-                  onChange={(e) => {
-                    setProfileInfo({ ...profileInfo, phoneNumber: e.target.value });
-                  }}
-                  // disabled={!canEdit}
-                />
-              </div>
+            </div>
+            <div className='mt-4'>
+              <TextArea
+                label="Preferences"
+                value={profileInfo.preferences}
+                placeholder="Enter your preferences"
+                onChange={(e) =>
+                  setProfileInfo({ ...profileInfo, preferences: e.target.value })
+                }
+              />
+            </div>
+            <div className='mt-4'>
+              <MultiDatePicker
+                label="Availability"
+                value={profileInfo.availability}
+                onChange={(selected) =>
+                  setProfileInfo({ ...profileInfo, availability: selected })
+                }
+                required
+              />
             </div>
           </form>
         </div>
