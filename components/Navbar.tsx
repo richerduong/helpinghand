@@ -115,6 +115,22 @@ export default function Navbar() {
                       </Link>
                     </NavigationMenu.Link>
                   </NavigationMenu.Item>
+                  <NavigationMenu.Item>
+                    <NavigationMenu.Link asChild>
+                      <Link
+                        href="/profile"
+                        className={clsx(
+                          'text-lg font-semibold hover:text-orange py-4',
+                          {
+                            'text-orange border-b-4 border-orange': path === '/profile',
+                            'text-navbar-text hover:text-orange': path !== '/profile',
+                          }
+                        )}
+                      >
+                        Profile
+                      </Link>
+                    </NavigationMenu.Link>
+                  </NavigationMenu.Item>
                 </div>
                 <NavigationMenu.Item>
                   <NavigationMenu.Link asChild>

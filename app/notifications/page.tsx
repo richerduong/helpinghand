@@ -35,7 +35,7 @@ export default function Notifications() {
                 <p className="text-gray-800">{notification.message}</p>
                 <p className="text-sm text-gray-500">{notification.date}</p>
                 {notification.link && (
-                  <a href='/notifications' className="text-blue-500 hover:text-blue-700">View details</a>
+                  <a href='/notifications' className="text-orange hover:text-blue-700">View details</a>
                 )}
               </li>
             ))}
