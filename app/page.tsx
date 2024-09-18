@@ -1,8 +1,9 @@
-export default function HomePage() {
+import Hero from './Hero';
+
+export default function Home() {
   return (
     <div>
-      <h1>Home Page</h1>
-      <p>Welcome to the volunteer management app!</p>
+      <Hero />
     </div>
   )
 }

@@ -2,26 +2,111 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+body {
+  overflow-x: hidden;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  
+@layer utilities {
+  .thin-border {
+    border-width: 1px;
+    border-style: solid;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@layer utilities {
+@media (min-width: 1024px) and (max-width: 1680px) {
+  .custom-grid-lg.custom-grid-lg {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
   .text-balance {
     text-wrap: balance;
   }
+}
+
+.primary-bg {
+  position: relative;
+  background:
+    url('/bg.png') center/cover no-repeat;
+}
+
+.primary-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url(/tempLanding.svg) center/cover no-repeat;
+  mix-blend-mode: overlay;
+}
+
+::selection {
+  background: #BBE6FF;
+  color: #24AFFE;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('../public/fonts/Metropolis-SemiBold.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'PitagonSans';
+  src: url('../public/fonts/PitagonSansMono-Light.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@keyframes cursor-animation {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: #ffffff;
+  }
+}
+
+.cursor-animate {
+  animation: cursor-animation 1.5s step-end infinite;
+}
+
+.slide-up {
+  animation: slide-up 0.5s forwards;
+}
+
+@keyframes slide-up {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+@media (min-width: 1024px) and (max-width: 1300px) {
+  .custom-grid-lg.custom-grid-lg {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.thin-border {
+  border-width: 1.5px;
+}
+
+.thin-border-b {
+  border-bottom-width: 1px;
+  border-top-width: 0px;
+  border-left-width: 0px;
+  border-right-width: 0px;
+}
+
+input:focus {
+  outline: 2px solid #24AFFE;
+}
+textarea:focus {
+  outline: 2px solid #24AFFE;
+}
+
+select:focus {
+  outline: 2px solid #24AFFE;
+}
+
+.icon-hover-animate {
+  transition: transform 0.3s ease-in-out;
 }
