@@ -24,7 +24,7 @@ export default function History() {
         location: 'Central Park',
         requiredSkills: ['Cleaning', 'Organizing'],
         urgency: 'High',
-        eventDate: '2024-10-10',
+        eventDate: '2024-09-02',
         participationStatus: 'Completed',
       },
       {
@@ -33,8 +33,8 @@ export default function History() {
         location: 'Community Center',
         requiredSkills: ['Logistics', 'Communication'],
         urgency: 'Medium',
-        eventDate: '2024-11-15',
-        participationStatus: 'Upcoming',
+        eventDate: '2024-09-13',
+        participationStatus: 'Completed',
       },
     ];
     setHistory(fetchedHistory);
