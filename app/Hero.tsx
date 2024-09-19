@@ -16,7 +16,7 @@ export default function Hero() {
         <div className="hidden lg:block">
           <div className="flex flex-row pt-12 gap-6">
             <Link
-              href={'/explore'}
+              href={'/signin'}
               className="border-4 border-darkorange-border bg-orange border-b-6 hover:bg-orange-button-hover text-white rounded-xl px-16 py-4 font-medium text-lg"
             >
               Get Started
