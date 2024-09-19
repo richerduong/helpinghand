@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 // import Image from 'next/image';
 // import { auth } from '@/lib/auth';
 // import { redirect } from 'next/navigation';
-import SignUpForm from './SignUpForm';
+import SignUpForm from "./SignUpForm";
 
 export default async function SignIn() {
   // const session = await auth();
@@ -12,15 +12,14 @@ export default async function SignIn() {
   // }
 
   return (
-    <main className="flex h-[89vh]">
-      <div className="max-w-1170 w-full mx-auto flex h-full">
-        <div className="flex-[1] bg-white flex flex-col justify-center border-r border-outline">
+    <main className="flex h-[89vh] w-screen">
+      <div className="w-full flex h-full">
+        <div className="flex-[1] bg-white flex flex-col justify-center border-r border-outline h-full">
           <div className="flex-[8] flex items-center justify-center">
             <SignUpForm />
           </div>
         </div>
-        <div className="flex-[1] relative bg-orange">
-        </div>
+        <div className="flex-[1] relative bg-orange h-full"></div>
       </div>
     </main>
   );
