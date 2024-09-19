@@ -12,8 +12,8 @@ const SideNav: React.FC = () => {
 
   const user = {
     profilePicture: "/path/to/profile-pic.jpg",
-    name: "John Doe",
-    email: "john.doe@example.com",
+    name: "Person Name",
+    email: "person@example.com",
   };
 
   const handleLogout = () => {
