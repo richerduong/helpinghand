@@ -78,6 +78,12 @@ export default function History() {
         )}
 
         <hr className="border-gray-300 w-full my-4 mb-6" />
+        <img
+          src = "/images/peace.png"
+          alt = "peace sign"
+          className="absolute bottom-[75px] left-[-150px]"
+          style={{ width: '50%', height: '50%', objectFit: 'contain', opacity: 1.0}}
+          />
       </div>
     </div>
   );

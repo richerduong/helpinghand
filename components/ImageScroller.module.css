@@ -1,0 +1,41 @@
+.scrollContainer {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  height: 50%;
+  margin: 60px;
+}
+
+.scrollContainer img {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.scrollContent {
+  display: flex;
+  flex-direction: column;
+  animation: scrollUpLoop 20s linear infinite;
+}
+
+.scrollDown .scrollContent {
+  animation: scrollDownLoop 20s linear infinite;
+}
+
+@keyframes scrollUpLoop {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes scrollDownLoop {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}

@@ -3,6 +3,7 @@ import React from "react";
 // import { auth } from '@/lib/auth';
 // import { redirect } from 'next/navigation';
 import SignUpForm from "./SignUpForm";
+import ImageSlide from '@/components/imageslide'
 
 export default async function SignIn() {
   // const session = await auth();
@@ -19,7 +20,9 @@ export default async function SignIn() {
             <SignUpForm />
           </div>
         </div>
-        <div className="flex-[1] relative bg-orange h-full"></div>
+        <div className="flex-[1] relative bg-orange h-full">
+          <ImageSlide/>
+        </div>
       </div>
     </main>
   );

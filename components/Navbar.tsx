@@ -12,20 +12,20 @@ export default function Navbar() {
   // const { data: session } = useSession();
 
   return (
-    <NavigationMenu.Root className="flex flex-col justify-center bg-white h-20 border-b border-grey-border overflow">
+    <NavigationMenu.Root className="flex flex-col justify-center bg-white h-20 border-b border-grey-border overflow z-10">
       <NavigationMenu.List className="flex justify-between items-center mx-auto w-1170">
         <div className="flex gap-x-10 h-full">
           <NavigationMenu.Item>
             <NavigationMenu.Link asChild>
               <Link href="/" title="homepage">
                 <div className="flex justify-center items-center gap-x-2">
-                  {/* <Image
-                    src="/navbarLogo.svg"
+                  <img
+                    src="/images/updatedlogo.png"
                     alt="HelpingHand Logo"
-                    width={35}
-                    height={35}
+                    width={70}
+                    height={70}
                     className="select-none"
-                  /> */}
+                  />
                   <h1 className="text-3xl font-bold text-black-text font-Metropolis hidden xl:block">
                     HelpingHand
                   </h1>
