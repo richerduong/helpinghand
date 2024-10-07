@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${hankenGrotesk.className} flex flex-col min-h-screen`}>
         <Navbar />
-        <main className="flex-grow">
+        <main className="flex-grow relative">
           {children}
         </main>
         <Footer />

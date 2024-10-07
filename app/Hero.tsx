@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import {useState, useEffect} from 'react';
+import Image from 'next/image';
 
 const images = [
   '/images/vol1.jpg',
@@ -21,11 +22,12 @@ export default function Hero() {
 
   return (
     <div className="flex flex-row items-center justify-center w-screen h-[85vh]">
-      {/*imageslide*/}
       <div className="absolute inset-0 z-0">
-        <img
+        <Image
           src={images[currentImageIndex]}
           alt="carousel"
+          width={1920}
+          height={1080}
           className="w-full h-full object-cover transition-opacity duration-1000"
           style={{ opacity: 0.6 }}
         />
