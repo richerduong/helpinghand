@@ -21,7 +21,7 @@ This project is a web application that allows non-profit organizations to manage
    npm install
    ```
 4. **Set up environment variables**:  
-   Create a .env file in the root of your project and add the following environment variables:
+   Create a `.env` file in the root of your project and add the following environment variables:
    ```bash
    NEXT_PUBLIC_SUPABASE_URL=https://sjmgjdezmeywsmjrpcuc.supabase.co
    NEXT_PUBLIC_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqbWdqZGV6bWV5d3NtanJwY3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgyNDU5MzMsImV4cCI6MjA0MzgyMTkzM30.zkcmloC9aMf5-UXtwfdKJZB6EYc6LWzDv6-pyXWZyO8
