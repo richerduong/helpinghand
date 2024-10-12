@@ -16,7 +16,7 @@ export default function Hero() {
   useEffect(() => {
     const interval = setInterval(()=> {
       setCurrentImageIndex((prevIndex)=> (prevIndex +1)% images.length);
-    }, 2000);
+    }, 10000);
     return () =>clearInterval(interval);
   }, []);
 
@@ -37,7 +37,7 @@ export default function Hero() {
           className="text-5xl md:text-6xl lg:text-7xl xxl:text-8xl font-bold font-Metropolis mt-0 text-black-text text-center">
           Welcome to<br className="hidden lg:block"></br>HelpingHand
         </h1>
-        <h3 className="text-darkgrey-text lg:text-2xl xxl:text-3xl mt-8 w-3/4 lg:w-2/3 text-center">
+        <h3 className="text-black-text lg:text-2xl xxl:text-3xl mt-8 w-3/4 lg:w-2/3 text-center font-bold">
           Join our community of dedicated volunteers and start <br className="hidden lg:block"></br>making an impact. Explore events, manage your profile, and stay updated with the latest opportunities.
         </h3>
         <div className="hidden lg:block">

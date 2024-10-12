@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // import { Session } from 'next-auth';
 // import clsx from 'clsx';
 // import toast from 'react-hot-toast';
@@ -11,6 +11,8 @@ import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { TextArea } from "@/components/TextArea";
 import { Option } from "@/components/MultiSelectDropdown";
 import { MultiDatePicker } from "@/components/MultiDatePicker";
+import supabase from '@/api/supabaseClient';
+import { Session } from "@supabase/supabase-js";
 
 interface ProfileInfo {
   email: string;
@@ -26,14 +28,14 @@ interface ProfileInfo {
   availability: Date[];
 }
 
-// interface ProfileProps {
-//   session: Session | null;
-// }
+interface ProfileProps {
+  session: Session;
+  setProfileComplete: (complete: boolean) => void;
+}
 
-export default function Profile() {
-  // const [canEdit, setCanEdit] = useState<boolean>(false);
+function Profile({ session, setProfileComplete }: ProfileProps) {
   const [profileInfo, setProfileInfo] = useState<ProfileInfo>({
-    email: "",
+    email: session?.user?.email || "",
     fullName: "",
     phoneNumber: "",
     address1: "",
@@ -46,61 +48,38 @@ export default function Profile() {
     availability: [],
   });
 
-  // TODO: Move to DB to store states
+  useEffect(() => {
+    const fetchProfileInfo = async () => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', session.user.email)
+        .single();
+
+      if (profile) {
+        setProfileInfo({
+          email: profile.email,
+          fullName: profile.full_name || "",
+          phoneNumber: profile.phone_number || "",
+          address1: profile.address1 || "",
+          address2: profile.address2 || "",
+          city: profile.city || "",
+          state: profile.state || "",
+          zipCode: profile.zip_code || "",
+          skills: profile.skills || [],
+          preferences: profile.preferences || "",
+          availability: profile.availability || [],
+        });
+      }
+    };
+
+    fetchProfileInfo();
+  }, [session]);
+
   const stateOptions = [
-    "AL",
-    "AK",
-    "AZ",
-    "AR",
-    "CA",
-    "CO",
-    "CT",
-    "DE",
-    "FL",
-    "GA",
-    "HI",
-    "ID",
-    "IL",
-    "IN",
-    "IA",
-    "KS",
-    "KY",
-    "LA",
-    "ME",
-    "MD",
-    "MA",
-    "MI",
-    "MN",
-    "MS",
-    "MO",
-    "MT",
-    "NE",
-    "NV",
-    "NH",
-    "NJ",
-    "NM",
-    "NY",
-    "NC",
-    "ND",
-    "OH",
-    "OK",
-    "OR",
-    "PA",
-    "RI",
-    "SC",
-    "SD",
-    "TN",
-    "TX",
-    "UT",
-    "VT",
-    "VA",
-    "WA",
-    "WV",
-    "WI",
-    "WY",
+    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
   ];
 
-  // TODO: Move to database and update skills
   const skillOptions: Option[] = [
     { label: "First Aid", value: "first-aid" },
     { label: "Event Management", value: "event-management" },
@@ -113,12 +92,10 @@ export default function Profile() {
     { label: "Community Outreach", value: "community-outreach" },
     { label: "Technical Support", value: "technical-support" },
     { label: "Language Translation", value: "language-translation" },
-    // Add more skills as needed
   ];
 
   const validateProfile = () => {
     const errors: string[] = [];
-
     if (profileInfo.fullName.length > 50) {
       errors.push("Full Name must not exceed 50 characters.");
     }
@@ -140,68 +117,44 @@ export default function Profile() {
     if (profileInfo.availability.length === 0) {
       errors.push("Availability is required.");
     }
-
     return errors;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const errors = validateProfile();
     if (errors.length > 0) {
       alert(errors.join("\n"));
       return;
     }
 
-    // Submit the form data
-    console.log("Profile info is valid:", profileInfo);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: profileInfo.fullName,
+          address1: profileInfo.address1,
+          address2: profileInfo.address2,
+          city: profileInfo.city,
+          state: profileInfo.state,
+          zip_code: profileInfo.zipCode,
+          skills: profileInfo.skills.map(skill => skill.value),
+          preferences: profileInfo.preferences,
+          availability: profileInfo.availability.map(date => date.toISOString()),
+        })
+        .eq('email', profileInfo.email);
+
+      if (error) {
+        console.error('Error updating profile:', error);
+        alert('Error updating profile. Please try again later.');
+      } else {
+        alert('Profile updated successfully!');
+        setProfileComplete(true);
+      }
+    } catch (error) {
+      console.error('Error submitting profile:', error);
+      alert('An error occurred. Please try again later.');
+    }
   };
-
-  // useEffect(() => {
-  //   fetchProfileInfo();
-  // }, [session]);
-
-  // const handleUpdateProfile = async () => {
-  //   // Validate profile info
-  //   if (!profileInfo.fullName) {
-  //     toast.error('Full Name is required.');
-  //     return;
-  //   }
-
-  //   try {
-  //     // const usernameResponse = await getAddress2(session?.user?.id as string);
-
-  //     // const { newAddress2 , ...rest } = profileInfo;
-  //     // const response = await updateProfile(session?.user?.id as string, { ...rest, username: newAddress2 });
-
-  //     setCanEdit(false);
-
-  //     console.log('Profile updated successfully');
-  //     toast.success('Profile updated successfully.');
-  //     // await fetchProfileInfo();
-
-  //   } catch (error) {
-  //     setCanEdit(false);
-  //     toast.error('Failed to update profile.');
-  //     console.error('Error updating profile:', error);
-  //   }
-  // }
-
-  // const [oldProfileInfo, setOldProfileInfo] = useState<ProfileInfo>({
-  //   email: '',
-  //   fullName: '',
-  //   phoneNumber: '',
-  // });
-
-  // const handleEdit = () => {
-  //   // store old profile info
-  //   setOldProfileInfo(profileInfo);
-  //   setCanEdit(!canEdit);
-  // }
-
-  // const handleCancel = () => {
-  //   // restore old profile info
-  //   setProfileInfo(oldProfileInfo);
-  //   setCanEdit(false);
-  // }
 
   return (
     <>
@@ -331,6 +284,7 @@ export default function Profile() {
               <button
                 type="submit"
                 className="mt-6 bg-orange text-white py-2 px-4 rounded-lg"
+                onClick={handleSubmit}
               >
                 Save Profile
               </button>
@@ -341,3 +295,5 @@ export default function Profile() {
     </>
   );
 }
+
+export default Profile;

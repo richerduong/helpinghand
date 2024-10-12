@@ -6,6 +6,7 @@ import { useFormStore } from './FormStore';
 import supabase from '@/api/supabaseClient';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useAuth } from '@/components/auth/AuthContext';
 
 export default function AccountTypeStep() {
   const { step, setStep, email, password } = useFormStore();
@@ -13,6 +14,7 @@ export default function AccountTypeStep() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { setSession } = useAuth();
 
   const handleAccountTypeSelection = (type: 'volunteer' | 'admin') => {
     setAccountType(type);
@@ -22,8 +24,7 @@ export default function AccountTypeStep() {
     setIsLoading(true);
 
     try {
-      // Create the user account with email and password
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -31,15 +32,24 @@ export default function AccountTypeStep() {
       if (signUpError) {
         setError(signUpError.message);
       } else {
-        // Store account type in user metadata (optional)
-        // Here you would save the `accountType` information in your database or user profile table
-        // You might want to handle that with a subsequent request to your backend after sign up.
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              email: email,
+              isAdmin: accountType === 'admin',
+            },
+          ]);
 
-        // Redirect to profile page
-        router.push('/profile');
+        if (profileError) {
+          setError(profileError.message);
+        } else {
+          setSession(signUpData.session);
+          router.push('/profile');
+        }
       }
-    } catch (err) {
-      setError('An error occurred. Please try again later.');
+    } catch (error) {
+      setError('An unexpected error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
     }

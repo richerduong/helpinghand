@@ -10,6 +10,7 @@ import { validateEmail } from '@/utils/validations';
 import { useFormStore } from './FormStore';
 import { useRouter } from 'next/navigation';
 import supabase from '@/api/supabaseClient';
+import { useAuth } from '@/components/auth/AuthContext';
 
 export default function SignInForm() {
   const {
@@ -24,6 +25,7 @@ export default function SignInForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isEmailError, setIsEmailError] = useState<boolean>(true);
   const router = useRouter();
+  const { setSession } = useAuth();
 
   useEffect(() => {
     reset();
@@ -39,26 +41,23 @@ export default function SignInForm() {
 
   const handleSignIn = async () => {
     setIsLoading(true);
-
     setIsEmailError(true);
     if (!validateEmail(email)) {
       setError('Please enter a valid email address, like user@example.com.');
       setIsLoading(false);
       return;
     }
-
     setIsEmailError(false);
-
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
-
       if (signInError) {
         setError(signInError.message);
       } else {
         setError('');
+        setSession(session);
         router.push('/profile');
       }
     } catch (error) {

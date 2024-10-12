@@ -1,16 +1,27 @@
-import React from "react";
-// import Image from 'next/image';
-// import { auth } from '@/lib/auth';
-// import { redirect } from 'next/navigation';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import SignUpForm from "./SignUpForm";
-import ImageSlide from '@/components/imageslide'
+import ImageSlide from "@/components/imageslide";
+import supabase from "@/api/supabaseClient";
+import { Session } from "@supabase/supabase-js";
 
-export default async function SignIn() {
-  // const session = await auth();
+export default function SignUp() {
+  // const [session, setSession] = useState<Session | null>(null);
+  // const router = useRouter();
 
-  // if (session?.user) {
-  //   redirect('/');
-  // }
+  // useEffect(() => {
+  //   const checkSession = async () => {
+  //     const { data: { session } } = await supabase.auth.getSession();
+
+  //     if (session?.user) {
+  //       router.push('/');
+  //     } else {
+  //       setSession(session);
+  //     }
+  //   };
+
+  //   checkSession();
+  // }, [router]);
 
   return (
     <main className="flex h-[89vh] w-screen">
@@ -21,7 +32,7 @@ export default async function SignIn() {
           </div>
         </div>
         <div className="flex-[1] relative bg-orange h-full">
-          <ImageSlide/>
+          <ImageSlide />
         </div>
       </div>
     </main>

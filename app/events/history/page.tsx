@@ -81,7 +81,7 @@ export default function History() {
         <img
           src = "/images/peace.png"
           alt = "peace sign"
-          className="absolute bottom-[75px] left-[-150px]"
+          className="absolute bottom-0 left-[-150px]"
           style={{ width: '50%', height: '50%', objectFit: 'contain', opacity: 1.0}}
           />
       </div>

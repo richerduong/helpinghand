@@ -3,7 +3,7 @@
 
 import Manage from "./Manage";
 
-export default async function EventManagement() {
+export default function EventManagement() {
   // const session = await auth();
 
   // if (!session?.user) {
