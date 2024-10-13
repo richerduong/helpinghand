@@ -10,7 +10,7 @@ import { Option } from "@/components/MultiSelectDropdown";
 import { MultiDatePicker } from "@/components/MultiDatePicker";
 import supabase from '@/api/supabaseClient';
 import { Session } from "@supabase/supabase-js";
-import { profiles } from "@/types/types";
+import { profile } from "@/types/types";
 import { stateOptions, skillOptions } from "@/data/data";
 
 interface ProfileProps {
@@ -18,8 +18,8 @@ interface ProfileProps {
 }
 
 export default function Profile({ session }: ProfileProps) {
-  const [profileData, setProfileData] = useState<profiles | null>(null);
-  const [profileInfo, setProfileInfo] = useState<profiles>({
+  const [profileData, setProfileData] = useState<profile | null>(null);
+  const [profileInfo, setProfileInfo] = useState<profile>({
     email: "",
     full_name: "",
     address_1: "",
@@ -37,7 +37,6 @@ export default function Profile({ session }: ProfileProps) {
     async function loadProfile() {
       if (session?.user?.email) {
         const data = await fetchUserProfile(session.user.email);
-        console.log('data:', data);
         setProfileData(data);
       }
     }
@@ -63,12 +62,11 @@ export default function Profile({ session }: ProfileProps) {
         city: profileData.city || "",
         state: profileData.state || "",
         zip_code: profileData.zip_code || "",
-        skills: mappedSkills || [],
+        skills: profileData.skills || [],
         preferences: profileData.preferences || "",
         availability: transformedAvailability || [],
         is_admin: profileData.is_admin,
       });
-      console.log('Profile Info:', profileInfo);
     }
   }, [profileData]);
   
@@ -117,7 +115,7 @@ export default function Profile({ session }: ProfileProps) {
           city: profileInfo.city,
           state: profileInfo.state,
           zip_code: profileInfo.zip_code,
-          skills: profileInfo.skills.map((skill) => skill.value),
+          skills: profileInfo.skills,
           preferences: profileInfo.preferences,
           availability: profileInfo.availability.map((date) => date.toISOString()),
         })
@@ -229,9 +227,9 @@ export default function Profile({ session }: ProfileProps) {
               <MultiSelectDropdown
                 label="Skills"
                 options={skillOptions}
-                selectedOptions={profileInfo.skills}
+                selectedOptions={profileInfo.skills.map(skill => skillOptions.find(option => option.value === skill) as Option)}
                 onChange={(selected) =>
-                  setProfileInfo({ ...profileInfo, skills: selected })
+                  setProfileInfo({ ...profileInfo, skills: selected.map(option => option.value) })
                 }
                 required
               />

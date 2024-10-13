@@ -1,6 +1,6 @@
 import { Option } from "@/components/MultiSelectDropdown";
 
-export interface profiles {
+export interface profile {
   email: string;
   full_name: string;
   address_1: string;
@@ -8,13 +8,14 @@ export interface profiles {
   city: string;
   state: string;
   zip_code: string;
-  skills: Option[];
+  skills: string[];
   preferences: string;
   availability: Date[];
   is_admin: boolean;
 }
 
-export interface events {
+export interface event {
+  id: number;
   event_name: string;
   event_description: string;
   location: string;
