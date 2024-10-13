@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// import { Session } from 'next-auth';
-// import clsx from 'clsx';
-// import toast from 'react-hot-toast';
-// import { getProfile, updateProfile } from './actions';
+import { fetchUserProfile } from "./actions";
 import { FormInput } from "@/components/FormInput";
 import { Dropdown } from "@/components/Dropdown";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
@@ -13,110 +10,93 @@ import { Option } from "@/components/MultiSelectDropdown";
 import { MultiDatePicker } from "@/components/MultiDatePicker";
 import supabase from '@/api/supabaseClient';
 import { Session } from "@supabase/supabase-js";
-
-interface ProfileInfo {
-  email: string;
-  fullName: string;
-  phoneNumber: string;
-  address1: string;
-  address2: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  skills: Option[];
-  preferences: string;
-  availability: Date[];
-}
+import { profiles } from "@/types/types";
+import { stateOptions, skillOptions } from "@/data/data";
 
 interface ProfileProps {
-  session: Session;
-  setProfileComplete: (complete: boolean) => void;
+  session: Session | null;
 }
 
-function Profile({ session, setProfileComplete }: ProfileProps) {
-  const [profileInfo, setProfileInfo] = useState<ProfileInfo>({
-    email: session?.user?.email || "",
-    fullName: "",
-    phoneNumber: "",
-    address1: "",
-    address2: "",
+export default function Profile({ session }: ProfileProps) {
+  const [profileData, setProfileData] = useState<profiles | null>(null);
+  const [profileInfo, setProfileInfo] = useState<profiles>({
+    email: "",
+    full_name: "",
+    address_1: "",
+    address_2: "",
     city: "",
     state: "",
-    zipCode: "",
+    zip_code: "",
     skills: [],
     preferences: "",
     availability: [],
+    is_admin: false,
   });
 
   useEffect(() => {
-    const fetchProfileInfo = async () => {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', session.user.email)
-        .single();
-
-      if (profile) {
-        setProfileInfo({
-          email: profile.email,
-          fullName: profile.full_name || "",
-          phoneNumber: profile.phone_number || "",
-          address1: profile.address1 || "",
-          address2: profile.address2 || "",
-          city: profile.city || "",
-          state: profile.state || "",
-          zipCode: profile.zip_code || "",
-          skills: profile.skills || [],
-          preferences: profile.preferences || "",
-          availability: profile.availability || [],
-        });
+    async function loadProfile() {
+      if (session?.user?.email) {
+        const data = await fetchUserProfile(session.user.email);
+        console.log('data:', data);
+        setProfileData(data);
       }
-    };
+    }
 
-    fetchProfileInfo();
+    loadProfile();
   }, [session]);
 
-  const stateOptions = [
-    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
-  ];
+  useEffect(() => {
+    let mappedSkills: Option[] = [];
+    if (profileData) {
+      if (profileData.skills !== null && profileData.skills !== undefined) {
+        mappedSkills = (profileData.skills as unknown as string[]).map((skillValue: string) =>
+          skillOptions.find((option) => option.value === skillValue)
+        ).filter(Boolean) as Option[];
+      }
+      const transformedAvailability = (profileData.availability as unknown as string[])?.map((date: string) => new Date(date + 'T00:00:00'));
 
-  const skillOptions: Option[] = [
-    { label: "First Aid", value: "first-aid" },
-    { label: "Event Management", value: "event-management" },
-    { label: "Fundraising", value: "fundraising" },
-    { label: "Teaching & Mentoring", value: "teaching-mentoring" },
-    { label: "Cooking", value: "cooking" },
-    { label: "Transportation Assistance", value: "transportation-assistance" },
-    { label: "Administrative Work", value: "administrative-work" },
-    { label: "Disaster Relief", value: "disaster-relief" },
-    { label: "Community Outreach", value: "community-outreach" },
-    { label: "Technical Support", value: "technical-support" },
-    { label: "Language Translation", value: "language-translation" },
-  ];
-
+      setProfileInfo({
+        email: profileData.email,
+        full_name: profileData.full_name || "",
+        address_1: profileData.address_1 || "",
+        address_2: profileData.address_2 || "",
+        city: profileData.city || "",
+        state: profileData.state || "",
+        zip_code: profileData.zip_code || "",
+        skills: mappedSkills || [],
+        preferences: profileData.preferences || "",
+        availability: transformedAvailability || [],
+        is_admin: profileData.is_admin,
+      });
+      console.log('Profile Info:', profileInfo);
+    }
+  }, [profileData]);
+  
   const validateProfile = () => {
     const errors: string[] = [];
-    if (profileInfo.fullName.length > 50) {
-      errors.push("Full Name must not exceed 50 characters.");
+
+    if (profileInfo.full_name.length > 50) {
+      errors.push('Full Name must not exceed 50 characters.');
     }
-    if (profileInfo.address1.length > 100) {
-      errors.push("Address 1 must not exceed 100 characters.");
+    if (profileInfo.address_1.length > 100) {
+      errors.push('Address 1 must not exceed 100 characters.');
     }
     if (profileInfo.city.length > 100) {
-      errors.push("City must not exceed 100 characters.");
+      errors.push('City must not exceed 100 characters.');
     }
-    if (profileInfo.zipCode.length < 5 || profileInfo.zipCode.length > 9) {
-      errors.push("Zip Code must be between 5 and 9 characters.");
+    if (profileInfo.zip_code.length < 5 || profileInfo.zip_code.length > 9) {
+      errors.push('Zip Code must be between 5 and 9 characters.');
     }
     if (!profileInfo.state) {
-      errors.push("State is required.");
+      errors.push('State is required.');
     }
     if (profileInfo.skills.length === 0) {
-      errors.push("At least one skill is required.");
+      errors.push('At least one skill is required.');
     }
     if (profileInfo.availability.length === 0) {
-      errors.push("Availability is required.");
+      errors.push('Availability is required.');
     }
+
     return errors;
   };
 
@@ -129,30 +109,29 @@ function Profile({ session, setProfileComplete }: ProfileProps) {
 
     try {
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
-          full_name: profileInfo.fullName,
-          address1: profileInfo.address1,
-          address2: profileInfo.address2,
+          full_name: profileInfo.full_name,
+          address_1: profileInfo.address_1,
+          address_2: profileInfo.address_2,
           city: profileInfo.city,
           state: profileInfo.state,
-          zip_code: profileInfo.zipCode,
-          skills: profileInfo.skills.map(skill => skill.value),
+          zip_code: profileInfo.zip_code,
+          skills: profileInfo.skills.map((skill) => skill.value),
           preferences: profileInfo.preferences,
-          availability: profileInfo.availability.map(date => date.toISOString()),
+          availability: profileInfo.availability.map((date) => date.toISOString()),
         })
-        .eq('email', profileInfo.email);
+        .eq("email", profileInfo.email);
 
       if (error) {
-        console.error('Error updating profile:', error);
-        alert('Error updating profile. Please try again later.');
+        console.error("Error updating profile:", error);
+        alert("Error updating profile. Please try again later.");
       } else {
-        alert('Profile updated successfully!');
-        setProfileComplete(true);
+        alert("Profile updated successfully!");
       }
     } catch (error) {
-      console.error('Error submitting profile:', error);
-      alert('An error occurred. Please try again later.');
+      console.error("Error submitting profile:", error);
+      alert("An error occurred. Please try again later.");
     }
   };
 
@@ -175,10 +154,10 @@ function Profile({ session, setProfileComplete }: ProfileProps) {
             <FormInput
               label="Full Name"
               type="text"
-              value={profileInfo.fullName}
+              value={profileInfo.full_name}
               placeholder="Full Name"
               onChange={(e) =>
-                setProfileInfo({ ...profileInfo, fullName: e.target.value })
+                setProfileInfo({ ...profileInfo, full_name: e.target.value })
               }
               maxLength={50}
               required
@@ -188,10 +167,10 @@ function Profile({ session, setProfileComplete }: ProfileProps) {
                 <FormInput
                   label="Address 1"
                   type="text"
-                  value={profileInfo.address1}
+                  value={profileInfo.address_1}
                   placeholder="Address 1"
                   onChange={(e) =>
-                    setProfileInfo({ ...profileInfo, address1: e.target.value })
+                    setProfileInfo({ ...profileInfo, address_1: e.target.value })
                   }
                   maxLength={100}
                   required
@@ -199,10 +178,10 @@ function Profile({ session, setProfileComplete }: ProfileProps) {
                 <FormInput
                   label="Address 2"
                   type="text"
-                  value={profileInfo.address2}
+                  value={profileInfo.address_2}
                   placeholder="Address 2"
                   onChange={(e) =>
-                    setProfileInfo({ ...profileInfo, address2: e.target.value })
+                    setProfileInfo({ ...profileInfo, address_2: e.target.value })
                   }
                   maxLength={100}
                 />
@@ -236,10 +215,10 @@ function Profile({ session, setProfileComplete }: ProfileProps) {
               <FormInput
                 label="Zip Code"
                 type="text"
-                value={profileInfo.zipCode}
+                value={profileInfo.zip_code}
                 placeholder="Zip Code"
                 onChange={(e) =>
-                  setProfileInfo({ ...profileInfo, zipCode: e.target.value })
+                  setProfileInfo({ ...profileInfo, zip_code: e.target.value })
                 }
                 minLength={5}
                 maxLength={9}
@@ -295,5 +274,3 @@ function Profile({ session, setProfileComplete }: ProfileProps) {
     </>
   );
 }
-
-export default Profile;

@@ -37,7 +37,7 @@ export default function AccountTypeStep() {
           .insert([
             {
               email: email,
-              isAdmin: accountType === 'admin',
+              is_admin: accountType === 'admin',
             },
           ]);
 

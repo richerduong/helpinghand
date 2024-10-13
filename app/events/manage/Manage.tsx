@@ -5,29 +5,20 @@ import { FormInput } from '@/components/FormInput';
 import { Dropdown } from '@/components/Dropdown';
 import { TextArea } from '@/components/TextArea';
 import { SingleDatePicker } from '@/components/DatePicker';
-
-interface ManageInfo {
-  eventName: string;
-  eventDecription: string;
-  location: string;
-  urgency: string;
-  eventDate: Date;
-}
+import { MultiSelectDropdown } from '@/components/MultiSelectDropdown';
+import { events } from '@/types/types';
+import { skillOptions, urgencyOptions } from '@/data/data';
 
 export default function Manage() {
   // const [canEdit, setCanEdit] = useState<boolean>(false);
-  const [manageInfo, setManageInfo] = useState<ManageInfo>({
-    eventName: '',
-    eventDecription: '',
+  const [manageInfo, setManageInfo] = useState<events>({
+    event_name: '',
+    event_description: '',
     location: '',
+    required_skills: [],
     urgency: '',
-        eventDate: new Date()
+    event_date: new Date()
   });
-
-  // TODO: Move to DB to store states
-  const urgencyOptions = [
-    'None', 'Low', 'Medium', 'High', 'Crtitical'
-  ];
 
   // useEffect(() => {
   //   fetchProfileInfo();
@@ -90,10 +81,10 @@ export default function Manage() {
             <FormInput
               label="Event Name"
               type="text"
-              value={manageInfo.eventName}
+              value={manageInfo.event_name}
               placeholder="Event Name"
               onChange={(e) =>
-                setManageInfo({ ...manageInfo, eventName: e.target.value })
+                setManageInfo({ ...manageInfo, event_name: e.target.value })
               }
               maxLength={100}
               required
@@ -102,10 +93,10 @@ export default function Manage() {
               <div className="flex w-full justify-between gap-x-4">
                 <TextArea
                   label="Event Description"
-                  value={manageInfo.eventDecription}
+                  value={manageInfo.event_description}
                   placeholder="Enter your event description"
                   onChange={(e) =>
-                    setManageInfo({ ...manageInfo, eventDecription: e.target.value })
+                    setManageInfo({ ...manageInfo, event_description: e.target.value })
                   }
                   required
                 />
@@ -124,6 +115,20 @@ export default function Manage() {
               />
             </div>
             <div className="mt-4">
+              <MultiSelectDropdown
+                label="Required Skills"
+                options={skillOptions}
+                selectedOptions={manageInfo.required_skills.map(skill => {
+                  const skillOption = skillOptions.find(option => option.value === skill);
+                  return { value: skill, label: skillOption ? skillOption.label : skill };
+                })}
+                onChange={(selected) =>
+                  setManageInfo({ ...manageInfo, required_skills: selected.map(option => option.value) })
+                }
+                required
+              />
+            </div>
+            <div className="mt-4">
               <Dropdown
                   label="Urgency"
                   value={manageInfo.urgency}
@@ -137,9 +142,9 @@ export default function Manage() {
             <div className='mt-4'>
               <SingleDatePicker
                 label="Event Date"
-                value={manageInfo.eventDate}
+                value={manageInfo.event_date}
                 onChange={(selected) =>
-                  setManageInfo({ ...manageInfo, eventDate: selected || new Date()})
+                  setManageInfo({ ...manageInfo, event_date: selected || new Date()})
                 }
                 required
               />
