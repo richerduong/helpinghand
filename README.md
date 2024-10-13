@@ -4,6 +4,8 @@ This project is a web application that allows non-profit organizations to manage
 
 ## Getting Started
 
+You can either visit our website at [https://helpinghand-t7.vercel.app/](https://helpinghand-t7.vercel.app/) or follow the steps below to clone the repository and run the application locally.
+
 1. **Clone the repository**:  
    ```bash
    # HTTPS
