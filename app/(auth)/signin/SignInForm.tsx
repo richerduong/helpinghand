@@ -9,6 +9,8 @@ import PasswordInput from './PasswordInput';
 import { validateEmail } from '@/utils/validations';
 import { useFormStore } from './FormStore';
 import { useRouter } from 'next/navigation';
+import supabase from '@/api/supabaseClient';
+import { useAuth } from '@/components/auth/AuthContext';
 
 export default function SignInForm() {
   const {
@@ -16,12 +18,14 @@ export default function SignInForm() {
     password,
     error,
     setEmail,
+    setPassword,
     setError,
     reset
   } = useFormStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isEmailError, setIsEmailError] = useState<boolean>(true);
   const router = useRouter();
+  const { setSession } = useAuth();
 
   useEffect(() => {
     reset();
@@ -31,24 +35,43 @@ export default function SignInForm() {
     setEmail(e.target.value);
   };
 
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
   const handleSignIn = async () => {
     setIsLoading(true);
-
     setIsEmailError(true);
     if (!validateEmail(email)) {
       setError('Please enter a valid email address, like user@example.com.');
       setIsLoading(false);
       return;
     }
-
     setIsEmailError(false);
-    
-    // Simulate loading and redirect after 2 seconds
-    setTimeout(() => {
+    try {
+      const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (signInError) {
+        setError(signInError.message);
+      } else {
+        setError('');
+        setSession(session);
+        router.push('/profile');
+      }
+    } catch (error) {
+      setError('An unexpected error occurred. Please try again later.');
+    } finally {
       setIsLoading(false);
-      router.push('/profile');
-    }, 2000);
-  }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && canSignIn()) {
+      handleSignIn();
+    }
+  };
 
   const canSignIn = () => {
     return email !== '' && password !== '';
@@ -85,10 +108,11 @@ export default function SignInForm() {
                 'border-danger-500': error && isEmailError,
               }
             )}
+            onKeyDown={handleKeyDown}
           />
         </Form.Field>
         <Form.Field name="password">
-          <PasswordInput isError={!isEmailError} />
+          <PasswordInput isError={!isEmailError} onChange={handlePasswordChange} onKeyDown={handleKeyDown} />
         </Form.Field>
         <span
           className={clsx(

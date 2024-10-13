@@ -6,12 +6,19 @@ import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import clsx from 'clsx';
 import { useFormStore } from './FormStore';
 
-export default function PasswordInput({ isError }: { isError: boolean }) {
+interface PasswordInputProps {
+  isError: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+}
+
+export default function PasswordInput({ isError, onChange, onKeyDown }: PasswordInputProps) {
   const { password, setPassword, error } = useFormStore();
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement> ) => {
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+    if (onChange) onChange(e);
   };
 
   const togglePasswordVisibility = () => {
@@ -26,6 +33,7 @@ export default function PasswordInput({ isError }: { isError: boolean }) {
         placeholder="********"
         value={password}
         onChange={handlePasswordChange}
+        onKeyDown={onKeyDown}
         className={clsx(
           'border',
           'placeholder-[#7C7C7C]',

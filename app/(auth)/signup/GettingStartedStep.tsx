@@ -5,12 +5,10 @@ import React, { useState } from 'react';
 import { useFormStore } from './FormStore';
 import Link from 'next/link';
 import * as Form from '@radix-ui/react-form';
-import { checkEmailAvailability } from '@/utils/api';
 import { validateEmail } from '@/utils/validations';
 import Image from 'next/image';
 import PasswordInput from './PasswordInput';
 import PasswordRequirements from './PasswordRequirements';
-import { useRouter } from 'next/navigation';
 
 const validatePassword = (password: string): boolean => {
   const minLength = /.{8,}/;
@@ -28,34 +26,30 @@ const validatePassword = (password: string): boolean => {
   );
 };
 
-
 export default function GettingStartedStep() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const {
     step,
+    setStep,
     email,
     setEmail,
-    password
+    password,
   } = useFormStore();
-  const [isEmailAvailable, setIsEmailAvailable] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const router = useRouter();
+  const [error, setError] = useState<string>('');
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement> ) => {
-    setEmail(e.target.value);
-  };
-
-  const handleContinue = async () => {
+  const handleContinue = () => {
     setIsLoading(true);
-
-    const { available: availableEmail } = await checkEmailAvailability()
-
-    setIsEmailAvailable(availableEmail);
-
-    if (availableEmail) {
-      router.push('/profile');
+    try {
+      if (validateEmail(email) && validatePassword(password)) {
+        setStep(step + 1);
+      } else {
+        setError('Please provide valid email and password.');
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const canContinue = () => {
@@ -66,96 +60,44 @@ export default function GettingStartedStep() {
     <div
       className={clsx({
         'block': step === 2,
-        'hidden': step !== 2
+        'hidden': step !== 2,
       })}
     >
       <h1 className="text-4xl text-[#353F42] font-semibold">Getting started</h1>
       <h2 className="text-lg text-[#646464] font-normal mt-3 mb-8">
-        Already have an account? {' '}
-        <Link
-          href="/signin"
-          className="text-orange"
-        >
+        Already have an account?{' '}
+        <Link href="/signin" className="text-orange">
           Sign in
         </Link>
       </h2>
       <div className="flex flex-col gap-y-4 w-full">
-        <Form.Field
-          name="email"
-          className="flex flex-col gap-y-1"
-        >
+        <Form.Field name="email" className="flex flex-col gap-y-1">
           <Form.Label className='flex justify-between text-sm'>
             <span>Email Address</span>
-            <span
-              className={clsx(
-                'text-danger-500',
-                {
-                  'hidden': isEmailAvailable,
-                  'block': !isEmailAvailable
-                }
-              )}
-            >
-              Email is not available.
-            </span>
           </Form.Label>
           <Form.Control
             type="email"
             required
             placeholder="markzuck@gmail.com"
             value={email}
-            onChange={handleEmailChange}
+            onChange={(e) => setEmail(e.target.value)}
             className={clsx(
               'border border-[#C5C9D6]',
               'placeholder-[#7C7C7C]',
               'text-[#2A2D31]',
               'py-3 px-4 rounded-md',
-              'outline-none focus:outline-none w-full'
+              'outline-none focus:outline-none w-full',
             )}
           />
         </Form.Field>
-        {/* <Form.Field
-          name="username"
-          className="flex flex-col gap-y-1"
-        >
-          <Form.Label className='flex justify-between text-sm'>
-            <span>Username</span>
-            <span
-              className={clsx(
-                'text-danger-500',
-                {
-                  'hidden': isUsernameAvailable,
-                  'block': !isUsernameAvailable
-                }
-              )}
-            >
-              Username is not available.
-            </span>
-          </Form.Label>
-          <Form.Control
-            type="text"
-            required
-            placeholder="markzuck"
-            value={username}
-            onChange={handleUsernameChange}
-            className={clsx(
-              'border border-[#C5C9D6]',
-              'placeholder-[#7C7C7C]',
-              'text-[#2A2D31]',
-              'py-3 px-4 rounded-md',
-              'outline-none focus:outline-none w-full'
-            )}
-          />
-        </Form.Field> */}
-        <Form.Field
-          name="password"
-          className="flex flex-col gap-y-1"
-        >
+        <Form.Field name="password" className="flex flex-col gap-y-1">
           <Form.Label className='flex justify-between text-sm'>
             <span>Password</span>
           </Form.Label>
           <PasswordInput />
         </Form.Field>
         <PasswordRequirements />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           type="button"
           className={clsx(
@@ -175,23 +117,18 @@ export default function GettingStartedStep() {
               alt="loading"
               width={24}
               height={24}
-              className={clsx(
-                'animate-spin direction-reverse',
-                {
-                  'hidden': !isLoading,
-                  'block': isLoading
-                }
-              )}
+              className={clsx('animate-spin direction-reverse', {
+                hidden: !isLoading,
+                block: isLoading,
+              })}
             />
             <span
-              className={clsx(
-                {
-                  'hidden': isLoading,
-                  'block': !isLoading
-                }
-              )}
+              className={clsx({
+                hidden: isLoading,
+                block: !isLoading,
+              })}
             >
-              Create Account
+              Continue
             </span>
           </div>
         </button>
