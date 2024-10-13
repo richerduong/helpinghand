@@ -29,7 +29,7 @@ export default function Hero() {
           width={1920}
           height={1080}
           className="w-full h-full object-cover transition-opacity duration-1000"
-          style={{ opacity: 0.6 }}
+          style={{ opacity: 0.2 }}
         />
       </div>
       <div className="flex flex-col justify-center items-center lg:mt-0 px-8 lg:px-0 z-10">
@@ -44,7 +44,7 @@ export default function Hero() {
           <div className="flex flex-row pt-12 gap-6">
             <Link
               href={'/signin'}
-              className="border-4 border-darkorange-border bg-orange border-b-6 hover:bg-orange-button-hover text-white rounded-xl px-16 py-4 font-medium text-lg"
+              className="border-4 border-darkorange-border bg-orange border-b-8 hover:bg-orange-button-hover text-white rounded-xl px-16 py-4 font-medium text-lg"
             >
               Get Started
             </Link>
