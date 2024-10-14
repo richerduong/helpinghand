@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import ImageScroller from '@/components/imagescroll';
 
 // Example Notification data type
 interface Notification {
@@ -12,6 +13,8 @@ interface Notification {
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const imagesLeft = ['/images/scroll1.jpg', '/images/scroll2.jpg', '/images/scroll3.jpg', '/images/scroll4.jpg', '/images/scroll5.jpg', '/images/scroll6.jpg']
+  const imagesRight = ['/images/scroll7.jpg', '/images/scroll8.jpg', '/images/scroll9.jpg', '/images/scroll10.jpg', '/images/scroll11.jpg', '/images/scroll12.jpg']
 
   // Fetch notifications (simulated with static data)
   useEffect(() => {
@@ -24,6 +27,9 @@ export default function Notifications() {
   }, []);
 
   return (
+    <div className="flex justify-between">
+      {/* Left Scrolling Images */}
+      <ImageScroller direction="up" images={imagesLeft} />
     <div className="max-w-1170 w-full mx-auto flex justify-center h-full">
       <div className="bg-white border-2 border-[#C5C9D6] mt-4 rounded-2xl p-12 mb-4 w-4/5">
         <h1 className="text-2xl font-bold mb-4">Notification History</h1>
@@ -46,6 +52,9 @@ export default function Notifications() {
 
         <hr className="border-gray-300 w-full my-4 mb-6" />
       </div>
+    </div>
+      {/* Right Scrolling Images */}
+      <ImageScroller direction="down" images={imagesRight} />
     </div>
   );
 }

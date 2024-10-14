@@ -48,7 +48,7 @@ export function MultiDatePicker({ label, value = [], onChange, required = false 
                 key={index}
                 className="bg-gray-200 px-2 py-1 rounded"
               >
-                {date.toLocaleDateString()}
+                {date instanceof Date ? date.toLocaleDateString() : 'Invalid date'}
                 <button
                   type="button"
                   className="ml-2 text-red"

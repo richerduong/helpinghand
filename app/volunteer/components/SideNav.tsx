@@ -17,7 +17,6 @@ const SideNav: React.FC = () => {
   };
 
   const handleLogout = () => {
-    console.log("Logging out...");
     router.push("/signin");
   };
 

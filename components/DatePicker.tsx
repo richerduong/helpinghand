@@ -27,7 +27,7 @@ export function SingleDatePicker({ label, value, onChange, required = false }: D
       <div className="mt-4">
         {value && (
           <div className="bg-gray-200 px-2 py-1 rounded">
-            {value.toLocaleDateString()}
+            {value instanceof Date ? value.toLocaleDateString() : ''}
           </div>
         )}
       </div>

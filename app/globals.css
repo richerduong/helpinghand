@@ -40,8 +40,8 @@ body {
 }
 
 ::selection {
-  background: #BBE6FF;
-  color: #24AFFE;
+  background: #24AFFE;
+  color: #FFFFFF;
 }
 
 @font-face {
