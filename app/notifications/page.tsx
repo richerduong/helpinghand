@@ -13,6 +13,7 @@ interface Notification {
   date: string;
   time: string;
   location: string;
+  description: string;
   is_read: boolean;
 }
 
@@ -45,8 +46,8 @@ export default function Notifications() {
       const { data, error } = await supabase
         .from("notifications")
         .select(
-          "id, message, created_at, event_name, date, time, location, is_read"
-        )
+          "id, message, created_at, event_name, date, time, location, description, is_read"
+        ) // Added 'description'
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -60,6 +61,7 @@ export default function Notifications() {
           date: notification.date,
           time: notification.time,
           location: notification.location,
+          description: notification.description,
           is_read: notification.is_read,
         }));
         setNotifications(formattedNotifications);
@@ -115,9 +117,6 @@ export default function Notifications() {
                     notification.is_read ? "opacity-50" : ""
                   }`} // Dims read notifications
                 >
-                  {!notification.is_read && (
-                    <span className="absolute left-0 top-1/2 transform -translate-y-1/2 h-4 w-4 bg-orange-500 rounded-full"></span>
-                  )}
                   <p className="font-bold">{notification.event_name}</p>
                   <p className="text-gray-800">{notification.message}</p>
                   <p className="text-sm text-gray-500">{`${notification.date}, ${notification.time} @ ${notification.location}`}</p>
@@ -138,10 +137,10 @@ export default function Notifications() {
       {/* Right Scrolling Images */}
       <ImageScroller direction="down" images={imagesRight} />
 
-      {/* Popup Modal for Event Details */}
+      {/* Notification Popup */}
       {showPopup && selectedNotification && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-3/4">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-1/2">
             <button
               onClick={closePopup}
               className="absolute top-2 right-2 text-gray-600 text-lg"
@@ -152,6 +151,8 @@ export default function Notifications() {
               {selectedNotification.event_name}
             </h2>
             <p>{selectedNotification.message}</p>
+            <p className="mt-4">{selectedNotification.description}</p>{" "}
+            {/* Display description */}
             <p className="text-sm text-gray-500 mt-4">
               {`${selectedNotification.date}, ${selectedNotification.time} @ ${selectedNotification.location}`}
             </p>
