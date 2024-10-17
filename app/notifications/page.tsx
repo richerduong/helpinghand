@@ -18,6 +18,10 @@ interface Notification {
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [selectedNotification, setSelectedNotification] =
+    useState<Notification | null>(null);
+  const [showPopup, setShowPopup] = useState(false);
+
   const imagesLeft = [
     "/images/scroll1.jpg",
     "/images/scroll2.jpg",
@@ -43,16 +47,15 @@ export default function Notifications() {
         .select(
           "id, message, created_at, event_name, date, time, location, is_read"
         )
-        .order("created_at", { ascending: false }); // Fetch notifications, ordered by latest
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching notifications:", error);
       } else {
-        // Transform data to match Notification interface
         const formattedNotifications = data.map((notification: any) => ({
           id: notification.id,
           message: notification.message,
-          created_at: new Date(notification.created_at).toLocaleDateString(), // Format created_at
+          created_at: new Date(notification.created_at).toLocaleDateString(),
           event_name: notification.event_name,
           date: notification.date,
           time: notification.time,
@@ -65,6 +68,32 @@ export default function Notifications() {
 
     fetchNotifications();
   }, []);
+
+  // Function to handle click on a notification
+  const handleNotificationClick = async (notification: Notification) => {
+    setSelectedNotification(notification);
+    setShowPopup(true);
+
+    // Update notification as read
+    if (!notification.is_read) {
+      await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("id", notification.id);
+
+      // Update the state to mark as read
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notif) =>
+          notif.id === notification.id ? { ...notif, is_read: true } : notif
+        )
+      );
+    }
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+    setSelectedNotification(null);
+  };
 
   return (
     <div className="flex justify-between">
@@ -81,10 +110,14 @@ export default function Notifications() {
               {notifications.map((notification) => (
                 <li
                   key={notification.id}
-                  className={`mb-3 p-3 shadow rounded bg-white ${
+                  onClick={() => handleNotificationClick(notification)}
+                  className={`mb-3 p-3 shadow rounded bg-white cursor-pointer relative ${
                     notification.is_read ? "opacity-50" : ""
                   }`} // Dims read notifications
                 >
+                  {!notification.is_read && (
+                    <span className="absolute left-0 top-1/2 transform -translate-y-1/2 h-4 w-4 bg-orange-500 rounded-full"></span>
+                  )}
                   <p className="font-bold">{notification.event_name}</p>
                   <p className="text-gray-800">{notification.message}</p>
                   <p className="text-sm text-gray-500">{`${notification.date}, ${notification.time} @ ${notification.location}`}</p>
@@ -101,8 +134,30 @@ export default function Notifications() {
           <hr className="border-gray-300 w-full my-4 mb-6" />
         </div>
       </div>
+
       {/* Right Scrolling Images */}
       <ImageScroller direction="down" images={imagesRight} />
+
+      {/* Popup Modal for Event Details */}
+      {showPopup && selectedNotification && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-3/4">
+            <button
+              onClick={closePopup}
+              className="absolute top-2 right-2 text-gray-600 text-lg"
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-bold mb-4">
+              {selectedNotification.event_name}
+            </h2>
+            <p>{selectedNotification.message}</p>
+            <p className="text-sm text-gray-500 mt-4">
+              {`${selectedNotification.date}, ${selectedNotification.time} @ ${selectedNotification.location}`}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
