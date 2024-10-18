@@ -1,90 +1,120 @@
 'use client'
 import { useState, useEffect } from 'react';
-
-// Example participation data type
-interface VolunteerHistory {
-  eventName: string;
-  eventDescription: string;
-  location: string;
-  requiredSkills: string[];
-  urgency: string;
-  eventDate: string;
-  participationStatus: string;
-}
+import { VolunteerHistory } from '@/types/types';
+import { fetchUserProfile } from '../../profile/actions'
+import supabase from '@/api/supabaseClient';  // Assuming Supabase is configured
 
 export default function History() {
   const [history, setHistory] = useState<VolunteerHistory[]>([]);
+  const [loading, setLoading] = useState(true);  // State for handling loading
+  const [error, setError] = useState<string | null>(null);  // Handle any errors
 
-  // Simulated data fetching
   useEffect(() => {
-    const fetchedHistory = [
-      {
-        eventName: 'Community Cleanup',
-        eventDescription: 'Help clean the local park.',
-        location: 'Central Park',
-        requiredSkills: ['Cleaning', 'Organizing'],
-        urgency: 'High',
-        eventDate: '2024-09-02',
-        participationStatus: 'Completed',
-      },
-      {
-        eventName: 'Food Drive',
-        eventDescription: 'Collect and distribute food donations.',
-        location: 'Community Center',
-        requiredSkills: ['Logistics', 'Communication'],
-        urgency: 'Medium',
-        eventDate: '2024-09-13',
-        participationStatus: 'Completed',
-      },
-    ];
-    setHistory(fetchedHistory);
+    const fetchHistory = async () => {
+      // Get current user email from supabase auth
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user?.email) {
+        setError('Error fetching user or user email is not available');
+        return;
+      }
+
+      const currentUserEmail = user.email;
+
+      // Fetch user profile based on email
+      const userProfile = await fetchUserProfile(currentUserEmail);
+
+      if (!userProfile) {
+        setError('No profile found for current user');
+        return;
+      }
+
+      const currentUserId = userProfile.id;
+
+      // Fetch volunteer history only for the current user
+      const { data: volunteerHistoryData, error: historyError } = await supabase
+        .from('volunteer_history')
+        .select(`
+          id, created_at, updated_at, volunteer_id, event_id, participation_status,
+          event_name, location, event_date
+        `)
+        .eq('volunteer_id', currentUserId);  // Filter by current user's volunteer_id
+
+      if (historyError) {
+        console.error('Error fetching volunteer history:', historyError.message);
+        setError('Error fetching volunteer history');
+        return;
+      }
+
+      // Log the data structure to inspect
+      console.log('Fetched volunteer history for current user:', volunteerHistoryData);
+
+      if (Array.isArray(volunteerHistoryData) && volunteerHistoryData.length > 0) {
+        setHistory(volunteerHistoryData);
+      } else {
+        setHistory([]);  // Set an empty array if no data is found
+      }
+
+      setLoading(false);  // Stop loading once data is fetched
+    };
+
+    fetchHistory();
   }, []);
 
-  return (
-    <div className="max-w-1170 w-full mx-auto flex justify-center h-full">
-      <div className="bg-white border-2 border-[#C5C9D6] mt-4 rounded-2xl p-12 mb-4 w-4/5">
-        <h1 className="text-2xl font-bold mb-4 text-center">Volunteer Participation History</h1>
-        <hr className="border-gray-300 w-full my-4 mb-6" />
-
-        {history.length > 0 ? (
-          <table className="w-full table-auto border-collapse text-center">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border p-4">Event Name</th>
-                <th className="border p-4">Description</th>
-                <th className="border p-4">Location</th>
-                <th className="border p-4">Required Skills</th>
-                <th className="border p-4">Urgency</th>
-                <th className="border p-4">Event Date</th>
-                <th className="border p-4">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((event, index) => (
-                <tr key={index} className="odd:bg-white even:bg-gray-50">
-                  <td className="border p-4">{event.eventName}</td>
-                  <td className="border p-4">{event.eventDescription}</td>
-                  <td className="border p-4">{event.location}</td>
-                  <td className="border p-4">{event.requiredSkills.join(', ')}</td>
-                  <td className="border p-4">{event.urgency}</td>
-                  <td className="border p-4">{new Date(event.eventDate).toLocaleDateString()}</td>
-                  <td className="border p-4">{event.participationStatus}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No volunteer history available.</p>
-        )}
-
-        <hr className="border-gray-300 w-full my-4 mb-6" />
-        <img
-          src = "/images/peace.png"
-          alt = "peace sign"
-          className="absolute bottom-0 left-[-150px]"
-          style={{ width: '50%', height: '50%', objectFit: 'contain', opacity: 1.0}}
-          />
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Loading volunteer history...</p>
       </div>
+    );  // Display a loading message, centered
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>{error}</p>
+      </div>
+    );  // Display an error message, centered
+  }
+
+  // Handle empty data
+  if (history.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-2xl text-gray-600">No volunteer history available.</p>
+      </div>
+    );  // Display a centered message with a larger font when no data is available
+  }
+
+  // Display the fetched data
+  return (
+    <div>
+      <h1 className="text-xl font-semibold mb-4 text-center">Volunteer Participation History</h1>
+      <table className="min-w-full table-auto">
+        <thead>
+          <tr>
+            <th className="px-4 py-2 border">Event Name</th>
+            <th className="px-4 py-2 border">Location</th>
+            <th className="px-4 py-2 border">Event Date</th>
+            <th className="px-4 py-2 border">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {history.map((event, index) => (
+            <tr key={index} className="text-center">
+              <td className="border px-4 py-2">{event.event_name}</td>
+              <td className="border px-4 py-2">{event.location}</td>
+              <td className="border px-4 py-2">{new Date(event.event_date).toLocaleDateString()}</td>
+              <td className="border px-4 py-2">{event.participation_status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
