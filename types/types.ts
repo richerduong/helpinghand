@@ -23,3 +23,15 @@ export interface event {
   urgency: string;
   event_date: Date;
 }
+
+export interface VolunteerHistory {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  volunteer_id: number;
+  event_id: number;
+  participation_status: string;
+  event_name: string;
+  location: string;
+  event_date: string;
+}
