@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { VolunteerHistory } from '@/types/types';
+import { fetchUserProfile } from '../../profile/actions'
 import supabase from '@/api/supabaseClient';  // Assuming Supabase is configured
 
 export default function History() {
@@ -10,33 +11,49 @@ export default function History() {
 
   useEffect(() => {
     const fetchHistory = async () => {
+      // Get current user email from supabase auth
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user?.email) {
+        setError('Error fetching user or user email is not available');
+        return;
+      }
+
+      const currentUserEmail = user.email;
+
+      // Fetch user profile based on email
+      const userProfile = await fetchUserProfile(currentUserEmail);
+
+      if (!userProfile) {
+        setError('No profile found for current user');
+        return;
+      }
+
+      const currentUserId = userProfile.id;
+
+      // Fetch volunteer history only for the current user
       const { data: volunteerHistoryData, error: historyError } = await supabase
         .from('volunteer_history')
         .select(`
           id, created_at, updated_at, volunteer_id, event_id, participation_status,
-          events!inner (event_name, location, event_date)
-        `);  // Fetch volunteer history and event data
+          event_name, location, event_date
+        `)
+        .eq('volunteer_id', currentUserId);  // Filter by current user's volunteer_id
 
       if (historyError) {
         console.error('Error fetching volunteer history:', historyError.message);
         setError('Error fetching volunteer history');
-        return;  // Exit early if there's an error
+        return;
       }
 
-      if (Array.isArray(volunteerHistoryData) && volunteerHistoryData.length > 0) {
-        const flattenedData = volunteerHistoryData.map((record: any) => ({
-          id: record.id,
-          created_at: record.created_at,
-          updated_at: record.updated_at,
-          volunteer_id: record.volunteer_id,
-          event_id: record.event_id,
-          participation_status: record.participation_status,
-          event_name: record.events.event_name,
-          location: record.events.location,
-          event_date: record.events.event_date,
-        }));
+      // Log the data structure to inspect
+      console.log('Fetched volunteer history for current user:', volunteerHistoryData);
 
-        setHistory(flattenedData);  // Set the flattened data in state
+      if (Array.isArray(volunteerHistoryData) && volunteerHistoryData.length > 0) {
+        setHistory(volunteerHistoryData);
       } else {
         setHistory([]);  // Set an empty array if no data is found
       }
