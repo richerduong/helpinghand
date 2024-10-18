@@ -32,6 +32,7 @@ export function TextArea({
           'disabled:cursor-not-allowed disabled:bg-[#F0F0F0]'
         )}
         rows={4}
+        required={required}
       />
     </div>
   );

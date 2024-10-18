@@ -10,6 +10,7 @@ interface FormInputProps {
   disabled?: boolean;
   maxLength?: number;
   minLength?: number;
+  className?: string;
 }
 
 export function FormInput({
@@ -22,6 +23,7 @@ export function FormInput({
   disabled = false,
   maxLength,
   minLength,
+  className,
 }: FormInputProps) {
   return (
     <div className="flex flex-col w-full gap-y-1">
@@ -41,7 +43,8 @@ export function FormInput({
           'bg-white border border-[#C5C9D6]',
           'w-full px-4 py-2 rounded',
           'focus:outline-none focus:border-[#24AFFE]',
-          'disabled:cursor-not-allowed disabled:bg-[#F0F0F0]'
+          'disabled:cursor-not-allowed disabled:bg-[#F0F0F0]',
+          className
         )}
         disabled={disabled}
       />

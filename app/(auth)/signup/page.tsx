@@ -1,25 +1,38 @@
-import React from 'react';
-// import Image from 'next/image';
-// import { auth } from '@/lib/auth';
-// import { redirect } from 'next/navigation';
-import SignUpForm from './SignUpForm';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import SignUpForm from "./SignUpForm";
+import ImageSlide from "@/components/imageslide";
+import supabase from "@/api/supabaseClient";
+import { Session } from "@supabase/supabase-js";
 
-export default async function SignIn() {
-  // const session = await auth();
+export default function SignUp() {
+  // const [session, setSession] = useState<Session | null>(null);
+  // const router = useRouter();
 
-  // if (session?.user) {
-  //   redirect('/');
-  // }
+  // useEffect(() => {
+  //   const checkSession = async () => {
+  //     const { data: { session } } = await supabase.auth.getSession();
+
+  //     if (session?.user) {
+  //       router.push('/');
+  //     } else {
+  //       setSession(session);
+  //     }
+  //   };
+
+  //   checkSession();
+  // }, [router]);
 
   return (
-    <main className="flex h-[89vh]">
-      <div className="max-w-1170 w-full mx-auto flex h-full">
-        <div className="flex-[1] bg-white flex flex-col justify-center border-r border-outline">
+    <main className="flex h-[89vh] w-screen">
+      <div className="w-full flex h-full">
+        <div className="flex-[1] bg-white flex flex-col justify-center border-r border-outline h-full">
           <div className="flex-[8] flex items-center justify-center">
             <SignUpForm />
           </div>
         </div>
-        <div className="flex-[1] relative bg-orange">
+        <div className="flex-[1] relative bg-orange h-full">
+          <ImageSlide />
         </div>
       </div>
     </main>

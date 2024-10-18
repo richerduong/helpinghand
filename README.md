@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HelpingHand
+
+This project is a web application that allows non-profit organizations to manage and optimize their volunteer activities. The application lets administrators create events, match volunteers to events, and manage notifications, while volunteers can view event details, manage their profiles, and see their participation history.
 
 ## Getting Started
 
-First, run the development server:
+You can either visit our website at [https://helpinghand-t7.vercel.app/](https://helpinghand-t7.vercel.app/) or follow the steps below to clone the repository and run the application locally.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Clone the repository**:  
+   ```bash
+   # HTTPS
+   git clone https://github.com/richerduong/helpinghand.git
+   # or SSH
+   git clone git@github.com:richerduong/helpinghand.git
+   ```
+2. **Navigate to the project directory**:  
+   ```bash
+   cd helpinghand
+   ```
+3. **Install dependencies**:  
+   Make sure you have Node.js installed, then run:
+   ```bash
+   npm install
+   ```
+4. **Set up environment variables**:  
+   Create a `.env` file in the root of your project and add the following environment variables:
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=https://sjmgjdezmeywsmjrpcuc.supabase.co
+   NEXT_PUBLIC_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqbWdqZGV6bWV5d3NtanJwY3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgyNDU5MzMsImV4cCI6MjA0MzgyMTkzM30.zkcmloC9aMf5-UXtwfdKJZB6EYc6LWzDv6-pyXWZyO8
+   ```
+5. **Run the development server**:  
+   ```bash
+   npm run dev
+   ```
+6. **Open your browser**:  
+   Visit http://localhost:3000 in your browser to access the application

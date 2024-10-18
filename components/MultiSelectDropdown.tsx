@@ -32,6 +32,7 @@ export function MultiSelectDropdown({
         value={selectedOptions}
         onChange={(selected) => onChange(selected as Option[])}
         classNamePrefix="react-select"
+        required={required}
       />
     </div>
   );
