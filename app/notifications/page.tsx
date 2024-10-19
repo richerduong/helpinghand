@@ -22,6 +22,8 @@ export default function Notifications() {
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
 
   const imagesLeft = [
     "/images/scroll1.jpg",
@@ -40,19 +42,49 @@ export default function Notifications() {
     "/images/scroll12.jpg",
   ];
 
-  // Fetch notifications from Supabase
+  // Fetch notifications from Supabase for the current user
   useEffect(() => {
     const fetchNotifications = async () => {
-      const { data, error } = await supabase
-        .from("notifications")
-        .select(
-          "id, message, created_at, event_name, date, time, location, description, is_read"
-        ) // Added 'description'
-        .order("created_at", { ascending: false });
+      try {
+        // Get current user information from Supabase Auth
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error("Error fetching notifications:", error);
-      } else {
+        if (userError || !user) {
+          throw new Error("Failed to get user information.");
+        }
+
+        const currentUserEmail = user.email;
+        console.log("Logged-in User Email:", currentUserEmail);
+
+        // Fetch user profile based on email to get volunteer_id (id from the profiles table)
+        const { data: userProfile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', currentUserEmail)
+          .single();
+
+        if (profileError || !userProfile) {
+          throw new Error("Failed to get user profile or user ID.");
+        }
+
+        const volunteerId = userProfile.id; // This is the volunteer ID from profiles
+        console.log("Logged-in Volunteer ID:", volunteerId);
+
+        // Fetch notifications for the current user based on volunteer_id
+        const { data, error } = await supabase
+          .from("notifications")
+          .select(
+            "id, message, created_at, event_name, date, time, location, description, is_read"
+          ) // Added 'description'
+          .eq("volunteer_id", volunteerId) // Filter by the volunteer's ID
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        console.log("Fetched Notifications:", data);
+
         const formattedNotifications = data.map((notification: any) => ({
           id: notification.id,
           message: notification.message,
@@ -64,7 +96,13 @@ export default function Notifications() {
           description: notification.description,
           is_read: notification.is_read,
         }));
+
         setNotifications(formattedNotifications);
+        setLoading(false); // Stop loading once data is fetched
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+        setError("Error fetching notifications.");
+        setLoading(false);
       }
     };
 
@@ -107,7 +145,11 @@ export default function Notifications() {
           <hr className="border-gray-300 w-full my-4 mb-6" />
 
           {/* Display Notifications */}
-          {notifications.length > 0 ? (
+          {loading ? (
+            <p>Loading notifications...</p>
+          ) : error ? (
+            <p>{error}</p>
+          ) : notifications.length > 0 ? (
             <ul>
               {notifications.map((notification) => (
                 <li
