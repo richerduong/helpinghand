@@ -1,7 +1,7 @@
-'use client'
+'use client';
 import { useState, useEffect } from 'react';
 import { VolunteerHistory } from '@/types/types';
-import { fetchUserProfile } from '../../profile/actions'
+import { fetchUserProfile } from '../../profile/actions';
 import supabase from '@/api/supabaseClient';  // Assuming Supabase is configured
 
 export default function History() {
@@ -53,7 +53,21 @@ export default function History() {
       console.log('Fetched volunteer history for current user:', volunteerHistoryData);
 
       if (Array.isArray(volunteerHistoryData) && volunteerHistoryData.length > 0) {
-        setHistory(volunteerHistoryData);
+        // Update the status based on the event date comparison
+        const updatedHistory = volunteerHistoryData.map((event) => {
+          const eventDate = new Date(event.event_date);
+          const today = new Date();
+
+          // Compare the event date with today's date to set the status dynamically
+          if (eventDate < today) {
+            return { ...event, participation_status: 'completed' };
+          } else if (eventDate >= today) {
+            return { ...event, participation_status: 'upcoming' };
+          }
+          return event;
+        });
+
+        setHistory(updatedHistory);
       } else {
         setHistory([]);  // Set an empty array if no data is found
       }
@@ -110,7 +124,11 @@ export default function History() {
               <td className="border px-4 py-2">{event.event_name}</td>
               <td className="border px-4 py-2">{event.location}</td>
               <td className="border px-4 py-2">{new Date(event.event_date).toLocaleDateString()}</td>
-              <td className="border px-4 py-2">{event.participation_status}</td>
+              <td className="border px-4 py-2">
+                {event.participation_status === 'completed'
+                  ? <span className="text-green-500">Completed</span>
+                  : <span className="text-blue-500">Upcoming</span>}
+              </td>
             </tr>
           ))}
         </tbody>
