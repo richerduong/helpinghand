@@ -261,7 +261,7 @@ export default function Profile({ session }: ProfileProps) {
               <button
                 type="submit"
                 className="mt-6 bg-orange text-white py-2 px-4 rounded-lg"
-                onClick={handleSubmit}
+                onSubmit={handleSubmit}
               >
                 Save Profile
               </button>
