@@ -41,8 +41,8 @@ export default function PasswordInput({ isError, onChange, onKeyDown }: Password
           'py-3 pl-4 pr-10 rounded-md',
           'outline-none focus:outline-none w-full',
           {
-            'border-outline': !error || !isError,
-            'border-danger-500': error && isError,
+            'border-outline':  !isError,
+            'border-danger-500':  isError,
           }
         )}
       />
