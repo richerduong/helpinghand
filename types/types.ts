@@ -1,6 +1,7 @@
 import { Option } from "@/components/MultiSelectDropdown";
 
 export interface profile {
+  id: number,
   email: string;
   full_name: string;
   address_1: string;
@@ -34,4 +35,12 @@ export interface VolunteerHistory {
   event_name: string;
   location: string;
   event_date: string;
+}
+
+
+export interface Match {
+  volunteer_id: number;
+  matched_event: string;
+  location: string | null;
+  event_date: string | null;
 }

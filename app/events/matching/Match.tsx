@@ -28,13 +28,9 @@ export default function Match() {
         setVolunteers(volunteerData || []);
         setEvents(eventData || []);
 
-        console.log("Full volunteer data:", volunteerData);
+        console.log(volunteers)
 
-        // volunteerData?.forEach((volunteer) => {
-        //     console.log(
-        //     `Volunteer: ${volunteer.full_name}, Skills: ${volunteer.skills.map((skill: { label: string }) => skill.label).join(', ')}`
-        //     );
-        // });
+        console.log("Full volunteer data:", volunteerData);
       }
       setLoading(false);
     };
@@ -42,11 +38,23 @@ export default function Match() {
     fetchVolunteersAndEvents();
   }, []);
 
-  // Matching logic: find an event based on the volunteer's skills
+  // Matching logic: find an event based on the volunteer's skills and availability
   const matchVolunteerToEvent = (volunteer: profile, events: event[]): event | undefined => {
-    return events.find((event) =>
-      event.required_skills.some((skill) => volunteer.skills.some(volunteerSkill => volunteerSkill === skill))
-    );
+    return events.find((event) => {
+      // Check if at least one skill matches between volunteer and event
+      const hasMatchingSkills = event.required_skills.some((skill) =>
+        volunteer.skills.some((volunteerSkill) => volunteerSkill === skill)
+      );
+
+      // Check if event date is within volunteer's availability
+      const isDateAvailable = volunteer.availability.some(
+        (availableDate) =>
+          new Date(availableDate).toISOString().slice(0, 10) === new Date(event.event_date).toISOString().slice(0, 10)
+      );
+
+      // Return event if both conditions are satisfied
+      return hasMatchingSkills && isDateAvailable;
+    });
   };
 
   if (loading) {

@@ -1,116 +1,198 @@
-'use client'
+'use client';
 import { useState, useEffect } from 'react';
-import { VolunteerHistory } from '@/types/types';
 import { fetchUserProfile } from '../../profile/actions'
-import supabase from '@/api/supabaseClient';  // Assuming Supabase is configured
+import supabase from '@/api/supabaseClient';
+import { profile, event } from '@/types/types';
 
 export default function History() {
-  const [history, setHistory] = useState<VolunteerHistory[]>([]);
-  const [loading, setLoading] = useState(true);  // State for handling loading
-  const [error, setError] = useState<string | null>(null);  // Handle any errors
+  const [volunteers, setVolunteers] = useState<profile[]>([]);
+  const [events, setEvents] = useState<event[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Step 1: Fetch volunteers and events
+  const fetchVolunteersAndEvents = async () => {
+    const { data: volunteerData, error: volunteerError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('is_admin', false); // Only volunteers (non-admin)
+
+    const { data: eventData, error: eventError } = await supabase
+      .from('events')
+      .select('*');
+
+    if (volunteerError || eventError) {
+      console.error('Error fetching data:', volunteerError || eventError);
+    } else {
+      setVolunteers(volunteerData || []);
+      setEvents(eventData || []);
+    }
+
+    setLoading(false);
+  };
+
+  // Step 2: Update volunteer history (This is now triggered when volunteers and events are set)
   useEffect(() => {
-    const fetchHistory = async () => {
-      // Get current user email from supabase auth
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
+    const updateVolunteerHistory = async () => {
+      const currentDate = new Date();
 
-      if (userError || !user?.email) {
-        setError('Error fetching user or user email is not available');
-        return;
+      for (const volunteer of volunteers) {
+        const matchedEvent = matchVolunteerToEvent(volunteer, events);
+
+        if (matchedEvent) {
+          const eventDate = new Date(matchedEvent.event_date);
+          const participationStatus = eventDate >= currentDate ? 'upcoming' : 'completed';
+
+          // Check if an entry already exists in `volunteer_history`
+          const { data: existingRecord, error: fetchError } = await supabase
+            .from('volunteer_history')
+            .select('*')
+            .eq('event_id', matchedEvent.id)
+            .eq('volunteer_id', volunteer.id)
+            .single();
+
+          if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error('Error checking volunteer history:', fetchError);
+            continue;
+          }
+
+          if (existingRecord) {
+            // If the record exists, update it
+            const { error: updateError } = await supabase
+              .from('volunteer_history')
+              .update({
+                participation_status: participationStatus,
+                event_name: matchedEvent.event_name,
+                location: matchedEvent.location,
+                event_date: matchedEvent.event_date,
+              })
+              .eq('event_id', matchedEvent.id)
+              .eq('volunteer_id', volunteer.id);
+
+            if (updateError) {
+              console.error('Error updating volunteer history:', updateError);
+            }
+          } else {
+            // If no record exists, insert a new one
+            const { error: insertError } = await supabase
+              .from('volunteer_history')
+              .insert([
+                {
+                  volunteer_id: volunteer.id,
+                  event_id: matchedEvent.id,
+                  participation_status: participationStatus,
+                  event_name: matchedEvent.event_name,
+                  location: matchedEvent.location,
+                  event_date: matchedEvent.event_date,
+                },
+              ]);
+
+            if (insertError) {
+              console.error('Error inserting into volunteer history:', insertError);
+            }
+          }
+        }
       }
-
-      const currentUserEmail = user.email;
-
-      // Fetch user profile based on email
-      const userProfile = await fetchUserProfile(currentUserEmail);
-
-      if (!userProfile) {
-        setError('No profile found for current user');
-        return;
-      }
-
-      const currentUserId = userProfile.id;
-
-      // Fetch volunteer history only for the current user
-      const { data: volunteerHistoryData, error: historyError } = await supabase
-        .from('volunteer_history')
-        .select(`
-          id, created_at, updated_at, volunteer_id, event_id, participation_status,
-          event_name, location, event_date
-        `)
-        .eq('volunteer_id', currentUserId);  // Filter by current user's volunteer_id
-
-      if (historyError) {
-        console.error('Error fetching volunteer history:', historyError.message);
-        setError('Error fetching volunteer history');
-        return;
-      }
-
-      // Log the data structure to inspect
-      console.log('Fetched volunteer history for current user:', volunteerHistoryData);
-
-      if (Array.isArray(volunteerHistoryData) && volunteerHistoryData.length > 0) {
-        setHistory(volunteerHistoryData);
-      } else {
-        setHistory([]);  // Set an empty array if no data is found
-      }
-
-      setLoading(false);  // Stop loading once data is fetched
     };
 
-    fetchHistory();
+    if (volunteers.length > 0 && events.length > 0) {
+      updateVolunteerHistory(); // Trigger when volunteers and events are set
+    }
+  }, [volunteers, events]); // This useEffect will run when volunteers or events change
+
+  // Step 3: Fetch volunteer history
+  const fetchHistory = async () => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user?.email) {
+      setError('Error fetching user or user email is not available');
+      return;
+    }
+
+    const userProfile = await fetchUserProfile(user.email);
+
+    if (!userProfile) {
+      setError('No profile found for current user');
+      return;
+    }
+
+    const { data: volunteerHistoryData, error: historyError } = await supabase
+      .from('volunteer_history')
+      .select(`
+        id, created_at, updated_at, volunteer_id, event_id, participation_status,
+        event_name, location, event_date
+      `)
+      .eq('volunteer_id', userProfile.id);  // Filter by current user's volunteer_id
+
+    if (historyError) {
+      console.error('Error fetching volunteer history:', historyError.message);
+      setError('Error fetching volunteer history');
+      return;
+    }
+
+    setHistory(volunteerHistoryData || []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const runProcess = async () => {
+      await fetchVolunteersAndEvents();
+      await fetchHistory();
+    };
+
+    runProcess();  // Run everything on component mount
   }, []);
 
-  // Handle loading state
+  // Matching logic
+  const matchVolunteerToEvent = (volunteer: profile, events: event[]): event | undefined => {
+    return events.find((event) => {
+      const hasMatchingSkills = event.required_skills.some((skill) =>
+        volunteer.skills.some((volunteerSkill) => volunteerSkill === skill)
+      );
+
+      const isDateAvailable = volunteer.availability.some(
+        (availableDate) =>
+          new Date(availableDate).toISOString().slice(0, 10) === new Date(event.event_date).toISOString().slice(0, 10)
+      );
+
+      return hasMatchingSkills && isDateAvailable;
+    });
+  };
+
+  // Handle loading
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Loading volunteer history...</p>
-      </div>
-    );  // Display a loading message, centered
+    return <p>Loading volunteer history...</p>;
   }
 
-  // Handle error state
+  // Handle errors
   if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>{error}</p>
-      </div>
-    );  // Display an error message, centered
+    return <p>{error}</p>;
   }
 
-  // Handle empty data
-  if (history.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-2xl text-gray-600">No volunteer history available.</p>
-      </div>
-    );  // Display a centered message with a larger font when no data is available
-  }
-
-  // Display the fetched data
+  // Display the history
   return (
     <div>
-      <h1 className="text-xl font-semibold mb-4 text-center">Volunteer Participation History</h1>
-      <table className="min-w-full table-auto">
+      <h1>Volunteer Participation History</h1>
+      <table>
         <thead>
           <tr>
-            <th className="px-4 py-2 border">Event Name</th>
-            <th className="px-4 py-2 border">Location</th>
-            <th className="px-4 py-2 border">Event Date</th>
-            <th className="px-4 py-2 border">Status</th>
+            <th>Event Name</th>
+            <th>Location</th>
+            <th>Event Date</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
           {history.map((event, index) => (
-            <tr key={index} className="text-center">
-              <td className="border px-4 py-2">{event.event_name}</td>
-              <td className="border px-4 py-2">{event.location}</td>
-              <td className="border px-4 py-2">{new Date(event.event_date).toLocaleDateString()}</td>
-              <td className="border px-4 py-2">{event.participation_status}</td>
+            <tr key={index}>
+              <td>{event.event_name}</td>
+              <td>{event.location}</td>
+              <td>{new Date(event.event_date).toLocaleDateString()}</td>
+              <td>{event.participation_status}</td>
             </tr>
           ))}
         </tbody>
