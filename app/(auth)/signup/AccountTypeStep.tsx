@@ -106,9 +106,11 @@ export default function AccountTypeStep() {
           className={clsx(
             'text-white border-[1.5px] border-b-4',
             'rounded-lg py-2 mt-3 w-full outline-none',
-            'bg-orange border-darkorange-border cursor-pointer hover:bg-orange-button-hover'
+            'bg-orange border-darkorange-border cursor-pointer hover:bg-orange-button-hover',
+            {'cursor-not-allowed opacity 50': isLoading}
           )}
           onClick={handleContinue}
+          disabled={isLoading}
         >
           <div className="h-6 flex justify-center items-center text-center">
             <Image
