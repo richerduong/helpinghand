@@ -1,6 +1,7 @@
 import { Option } from "@/components/MultiSelectDropdown";
 
 export interface profile {
+  id: number;
   email: string;
   full_name: string;
   address_1: string;
