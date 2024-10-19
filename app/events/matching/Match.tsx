@@ -44,9 +44,18 @@ export default function Match() {
 
   // Matching logic: find an event based on the volunteer's skills
   const matchVolunteerToEvent = (volunteer: profile, events: event[]): event | undefined => {
-    return events.find((event) =>
-      event.required_skills.some((skill) => volunteer.skills.some(volunteerSkill => volunteerSkill === skill))
-    );
+    return events.find((event) => {
+      const hasMatchingSkills = event.required_skills.some((skill) =>
+        volunteer.skills.some((volunteerSkill) => volunteerSkill === skill)
+      );
+
+      const isDateAvailable = volunteer.availability.some(
+        (availableDate) =>
+          new Date(availableDate).toISOString().slice(0, 10) === new Date(event.event_date).toISOString().slice(0, 10)
+      );
+
+      return hasMatchingSkills && isDateAvailable;
+    });
   };
 
   if (loading) {
