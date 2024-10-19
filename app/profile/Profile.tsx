@@ -20,6 +20,7 @@ interface ProfileProps {
 export default function Profile({ session }: ProfileProps) {
   const [profileData, setProfileData] = useState<profile | null>(null);
   const [profileInfo, setProfileInfo] = useState<profile>({
+    id: undefined,
     email: "",
     full_name: "",
     address_1: "",
@@ -55,6 +56,7 @@ export default function Profile({ session }: ProfileProps) {
       const transformedAvailability = (profileData.availability as unknown as string[])?.map((date: string) => new Date(date + 'T00:00:00'));
 
       setProfileInfo({
+        id: profileData.id,
         email: profileData.email,
         full_name: profileData.full_name || "",
         address_1: profileData.address_1 || "",
