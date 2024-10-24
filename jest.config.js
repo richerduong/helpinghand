@@ -2,7 +2,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(ts|tsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
@@ -12,8 +12,9 @@ module.exports = {
   },
   collectCoverage: true,
   collectCoverageFrom: [
-    "app/**/*.{ts,tsx,js,jsx}",
+    "**/actions.ts",
     "!**/node_modules/**",
     "!**/.next/**",
   ],
+  setupFiles: ['./jest.setup.js'],
 };

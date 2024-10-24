@@ -1,22 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import Profile from "./Profile";
-import { useAuth } from "@/components/auth/AuthContext";
+import { getSession } from "@/utils/login/actions";
 
 export default function Settings() {
-  const { session } = useAuth();
+  const [session, setSession] = useState<Session | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    if (!session?.user) {
-      router.push('/signin');
-    }
-  }, [session, router]);
+    const fetchSession = async () => {
+      const session = await getSession();
+      if (!session) {
+        router.push('/signin');
+      } else {
+        setSession(session);
+      }
+    };
+
+    fetchSession();
+  }, [router]);
 
   if (!session) {
-    return;
+    return null;
   }
 
   return (

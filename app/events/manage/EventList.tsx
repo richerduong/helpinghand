@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import supabase from '@/api/supabaseClient';
 import { event } from '@/types/types';
 import { skillOptions } from '@/data/data';
+import { fetchEvents, deleteEvent } from './actions';
 
 interface EventListProps {
   onEditEvent: (event: event) => void;
@@ -10,44 +10,43 @@ interface EventListProps {
 export default function EventList({ onEditEvent }: EventListProps) {
   const [events, setEvents] = useState<event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*');
-
+    const loadEvents = async () => {
+      const { data, error } = await fetchEvents();
       if (error) {
         console.error('Error fetching events:', error);
+        setError('Error fetching events.');
       } else {
-        setEvents(data as event[]);
+        setEvents(data || []);
       }
       setLoading(false);
     };
 
-    fetchEvents();
+    loadEvents();
   }, []);
 
   const handleDelete = async (id: number) => {
     const isConfirmed = window.confirm('Are you sure you want to delete this event?');
-  
-    if (!isConfirmed) return; // Exit if the user cancels the deletion
-  
-    const { error } = await supabase
-      .from('events')
-      .delete()
-      .eq('id', id);
-  
+    if (!isConfirmed) return;
+
+    const error = await deleteEvent(id); // Call server-side delete function
     if (error) {
       console.error('Error deleting event:', error);
       alert('Error deleting event. Please try again.');
     } else {
-      setEvents(events.filter((event) => event.id !== id));
+      // Update the client-side state after a successful delete
+      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== id));
     }
-  };  
+  };
 
   if (loading) {
     return <p>Loading events...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
   }
 
   return (

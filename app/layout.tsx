@@ -2,7 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import './globals.css';
 import { Hanken_Grotesk } from 'next/font/google';
-import { AuthProvider } from "@/components/auth/AuthContext";
+import { AuthProvider } from "@/api/AuthContext";
 
 const hankenGrotesk = Hanken_Grotesk({ subsets: ['latin'] });
 

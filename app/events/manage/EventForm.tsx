@@ -8,11 +8,11 @@ import { SingleDatePicker } from '@/components/DatePicker';
 import { MultiSelectDropdown } from '@/components/MultiSelectDropdown';
 import { event } from '@/types/types';
 import { skillOptions, urgencyOptions } from '@/data/data';
-import supabase from '@/api/supabaseClient';
+import { updateEvent, insertEvent } from './actions'; // Import server actions
 
 interface EventFormProps {
   event?: event | null;
-  onFormSubmit: () => void;  // To notify parent component after form submission
+  onFormSubmit: () => void; // To notify parent component after form submission
 }
 
 export default function EventForm({ event, onFormSubmit }: EventFormProps) {
@@ -53,20 +53,8 @@ export default function EventForm({ event, onFormSubmit }: EventFormProps) {
 
     try {
       if (manageInfo.id !== 0) {
-        // Updating an existing event
-        const { error } = await supabase
-          .from('events')
-          .update({
-            event_name: manageInfo.event_name,
-            event_description: manageInfo.event_description,
-            location: manageInfo.location,
-            required_skills: manageInfo.required_skills,
-            urgency: manageInfo.urgency,
-            event_date: manageInfo.event_date.toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', manageInfo.id);
-
+        // Call updateEvent for existing event
+        const error = await updateEvent(manageInfo);
         if (error) {
           console.error('Error updating event:', error);
           alert('Error updating event. Please try again.');
@@ -74,20 +62,8 @@ export default function EventForm({ event, onFormSubmit }: EventFormProps) {
           alert('Event updated successfully!');
         }
       } else {
-        // Inserting a new event
-        const { error } = await supabase
-          .from('events')
-          .insert([
-            {
-              event_name: manageInfo.event_name,
-              event_description: manageInfo.event_description,
-              location: manageInfo.location,
-              required_skills: manageInfo.required_skills,
-              urgency: manageInfo.urgency,
-              event_date: manageInfo.event_date.toISOString(),
-            },
-          ]);
-
+        // Call insertEvent for new event
+        const error = await insertEvent(manageInfo);
         if (error) {
           console.error('Error creating event:', error);
           alert('Error creating event. Please try again.');
@@ -108,7 +84,6 @@ export default function EventForm({ event, onFormSubmit }: EventFormProps) {
       });
 
       onFormSubmit(); // Notify parent component that the form has been submitted
-
     } catch (error) {
       console.error('Error submitting event:', error);
       alert('An unexpected error occurred. Please try again later.');
@@ -126,9 +101,7 @@ export default function EventForm({ event, onFormSubmit }: EventFormProps) {
             type="text"
             value={manageInfo.event_name}
             placeholder="Event Name"
-            onChange={(e) =>
-              setManageInfo({ ...manageInfo, event_name: e.target.value })
-            }
+            onChange={(e) => setManageInfo({ ...manageInfo, event_name: e.target.value })}
             maxLength={100}
             required
           />
@@ -138,9 +111,7 @@ export default function EventForm({ event, onFormSubmit }: EventFormProps) {
                 label="Event Description"
                 value={manageInfo.event_description}
                 placeholder="Enter your event description"
-                onChange={(e) =>
-                  setManageInfo({ ...manageInfo, event_description: e.target.value })
-                }
+                onChange={(e) => setManageInfo({ ...manageInfo, event_description: e.target.value })}
                 required
               />
             </div>
@@ -151,9 +122,7 @@ export default function EventForm({ event, onFormSubmit }: EventFormProps) {
               type="text"
               value={manageInfo.location}
               placeholder="Location"
-              onChange={(e) =>
-                setManageInfo({ ...manageInfo, location: e.target.value })
-              }
+              onChange={(e) => setManageInfo({ ...manageInfo, location: e.target.value })}
               required
             />
           </div>
@@ -165,9 +134,7 @@ export default function EventForm({ event, onFormSubmit }: EventFormProps) {
                 const skillOption = skillOptions.find((option) => option.value === skill);
                 return { value: skill, label: skillOption ? skillOption.label : skill };
               })}
-              onChange={(selected) =>
-                setManageInfo({ ...manageInfo, required_skills: selected.map((option) => option.value) })
-              }
+              onChange={(selected) => setManageInfo({ ...manageInfo, required_skills: selected.map((option) => option.value) })}
               required
             />
           </div>
@@ -176,9 +143,7 @@ export default function EventForm({ event, onFormSubmit }: EventFormProps) {
               label="Urgency"
               value={manageInfo.urgency}
               options={urgencyOptions}
-              onChange={(e) =>
-                setManageInfo({ ...manageInfo, urgency: e.target.value })
-              }
+              onChange={(e) => setManageInfo({ ...manageInfo, urgency: e.target.value })}
               required
             />
           </div>
@@ -186,9 +151,7 @@ export default function EventForm({ event, onFormSubmit }: EventFormProps) {
             <SingleDatePicker
               label="Event Date"
               value={manageInfo.event_date}
-              onChange={(selected) =>
-                setManageInfo({ ...manageInfo, event_date: selected || new Date() })
-              }
+              onChange={(selected) => setManageInfo({ ...manageInfo, event_date: selected || new Date() })}
               required
             />
           </div>
