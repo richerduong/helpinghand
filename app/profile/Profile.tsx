@@ -1,17 +1,15 @@
-"use client";
-import React from "react";
-import { useState, useEffect } from "react";
-import { fetchUserProfile } from "./actions";
-import { FormInput } from "@/components/FormInput";
-import { Dropdown } from "@/components/Dropdown";
-import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
-import { TextArea } from "@/components/TextArea";
-import { Option } from "@/components/MultiSelectDropdown";
-import { MultiDatePicker } from "@/components/MultiDatePicker";
-import supabase from '@/api/supabaseClient';
-import { Session } from "@supabase/supabase-js";
-import { profile } from "@/types/types";
-import { stateOptions, skillOptions } from "@/data/data";
+'use client';
+import React, { useState, useEffect } from 'react';
+import { fetchUserProfile, updateUserProfile } from './actions';
+import { FormInput } from '@/components/FormInput';
+import { Dropdown } from '@/components/Dropdown';
+import { MultiSelectDropdown } from '@/components/MultiSelectDropdown';
+import { TextArea } from '@/components/TextArea';
+import { Option } from '@/components/MultiSelectDropdown';
+import { MultiDatePicker } from '@/components/MultiDatePicker';
+import { Session } from '@supabase/supabase-js';
+import { profile } from '@/types/types';
+import { stateOptions, skillOptions } from '@/data/data';
 
 interface ProfileProps {
   session: Session | null;
@@ -21,15 +19,15 @@ export default function Profile({ session }: ProfileProps) {
   const [profileData, setProfileData] = useState<profile | null>(null);
   const [profileInfo, setProfileInfo] = useState<profile>({
     id: undefined,
-    email: "",
-    full_name: "",
-    address_1: "",
-    address_2: "",
-    city: "",
-    state: "",
-    zip_code: "",
+    email: '',
+    full_name: '',
+    address_1: '',
+    address_2: '',
+    city: '',
+    state: '',
+    zip_code: '',
     skills: [],
-    preferences: "",
+    preferences: '',
     availability: [],
     is_admin: false,
   });
@@ -46,32 +44,32 @@ export default function Profile({ session }: ProfileProps) {
   }, [session]);
 
   useEffect(() => {
-    let mappedSkills: Option[] = [];
     if (profileData) {
-      if (profileData.skills !== null && profileData.skills !== undefined) {
-        mappedSkills = (profileData.skills as unknown as string[]).map((skillValue: string) =>
-          skillOptions.find((option) => option.value === skillValue)
-        ).filter(Boolean) as Option[];
-      }
-      const transformedAvailability = (profileData.availability as unknown as string[])?.map((date: string) => new Date(date + 'T00:00:00'));
+      const mappedSkills: Option[] = (profileData.skills as string[]).map((skillValue: string) =>
+        skillOptions.find((option) => option.value === skillValue)
+      ).filter(Boolean) as Option[];
+
+      const transformedAvailability = (profileData.availability as unknown as string[]).map(
+        (date: string) => new Date(date + 'T00:00:00')
+      );
 
       setProfileInfo({
         id: profileData.id,
         email: profileData.email,
-        full_name: profileData.full_name || "",
-        address_1: profileData.address_1 || "",
-        address_2: profileData.address_2 || "",
-        city: profileData.city || "",
-        state: profileData.state || "",
-        zip_code: profileData.zip_code || "",
+        full_name: profileData.full_name || '',
+        address_1: profileData.address_1 || '',
+        address_2: profileData.address_2 || '',
+        city: profileData.city || '',
+        state: profileData.state || '',
+        zip_code: profileData.zip_code || '',
         skills: profileData.skills || [],
-        preferences: profileData.preferences || "",
+        preferences: profileData.preferences || '',
         availability: transformedAvailability || [],
         is_admin: profileData.is_admin,
       });
     }
   }, [profileData]);
-  
+
   const validateProfile = () => {
     const errors: string[] = [];
 
@@ -103,35 +101,17 @@ export default function Profile({ session }: ProfileProps) {
   const handleSubmit = async () => {
     const errors = validateProfile();
     if (errors.length > 0) {
-      alert(errors.join("\n"));
+      alert(errors.join('\n'));
       return;
     }
 
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          full_name: profileInfo.full_name,
-          address_1: profileInfo.address_1,
-          address_2: profileInfo.address_2,
-          city: profileInfo.city,
-          state: profileInfo.state,
-          zip_code: profileInfo.zip_code,
-          skills: profileInfo.skills,
-          preferences: profileInfo.preferences,
-          availability: profileInfo.availability.map((date) => date.toISOString()),
-        })
-        .eq("email", profileInfo.email);
+    const result = await updateUserProfile(profileInfo);
 
-      if (error) {
-        console.error("Error updating profile:", error);
-        alert("Error updating profile. Please try again later.");
-      } else {
-        alert("Profile updated successfully!");
-      }
-    } catch (error) {
-      console.error("Error submitting profile:", error);
-      alert("An error occurred. Please try again later.");
+    if (result.success) {
+      alert('Profile updated successfully!');
+    } else {
+      console.error('Error updating profile:', result.message);
+      alert(result.message);
     }
   };
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import ImageScroller from "@/components/imagescroll";
-import supabase from "../../api/supabaseClient";
+import { fetchNotifications, markNotificationAsRead } from './actions'; // Import actions
 
 // Notification data types
 interface Notification {
@@ -19,11 +19,10 @@ interface Notification {
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [selectedNotification, setSelectedNotification] =
-    useState<Notification | null>(null);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [showPopup, setShowPopup] = useState(false);
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
+  const [loading, setLoading] = useState(true);  // Loading state
+  const [error, setError] = useState<string | null>(null);  // Error state
 
   const imagesLeft = [
     "/images/scroll1.jpg",
@@ -42,71 +41,21 @@ export default function Notifications() {
     "/images/scroll12.jpg",
   ];
 
-  // Fetch notifications from Supabase for the current user
+  // Fetch notifications from the server-side action
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        // Get current user information from Supabase Auth
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const fetchData = async () => {
+      const { notifications, error } = await fetchNotifications(); // Call server action to fetch notifications
 
-        if (userError || !user) {
-          throw new Error("Failed to get user information.");
-        }
-
-        const currentUserEmail = user.email;
-        console.log("Logged-in User Email:", currentUserEmail);
-
-        // Fetch user profile based on email to get volunteer_id (id from the profiles table)
-        const { data: userProfile, error: profileError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', currentUserEmail)
-          .single();
-
-        if (profileError || !userProfile) {
-          throw new Error("Failed to get user profile or user ID.");
-        }
-
-        const volunteerId = userProfile.id; // This is the volunteer ID from profiles
-        console.log("Logged-in Volunteer ID:", volunteerId);
-
-        // Fetch notifications for the current user based on volunteer_id
-        const { data, error } = await supabase
-          .from("notifications")
-          .select(
-            "id, message, created_at, event_name, date, time, location, description, is_read"
-          ) // Added 'description'
-          .eq("volunteer_id", volunteerId) // Filter by the volunteer's ID
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          throw error;
-        }
-
-        console.log("Fetched Notifications:", data);
-
-        const formattedNotifications = data.map((notification: any) => ({
-          id: notification.id,
-          message: notification.message,
-          created_at: new Date(notification.created_at).toLocaleDateString(),
-          event_name: notification.event_name,
-          date: notification.date,
-          time: notification.time,
-          location: notification.location,
-          description: notification.description,
-          is_read: notification.is_read,
-        }));
-
-        setNotifications(formattedNotifications);
-        setLoading(false); // Stop loading once data is fetched
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-        setError("Error fetching notifications.");
-        setLoading(false);
+      if (error) {
+        setError(error);
+      } else {
+        setNotifications(notifications || []);
       }
+
+      setLoading(false);  // Stop loading after fetching
     };
 
-    fetchNotifications();
+    fetchData();
   }, []);
 
   // Function to handle click on a notification
@@ -116,12 +65,9 @@ export default function Notifications() {
 
     // Update notification as read
     if (!notification.is_read) {
-      await supabase
-        .from("notifications")
-        .update({ is_read: true })
-        .eq("id", notification.id);
+      await markNotificationAsRead(notification.id); // Call server action to mark as read
 
-      // Update the state to mark as read
+      // Update the state to mark the notification as read
       setNotifications((prevNotifications) =>
         prevNotifications.map((notif) =>
           notif.id === notification.id ? { ...notif, is_read: true } : notif
@@ -193,8 +139,7 @@ export default function Notifications() {
               {selectedNotification.event_name}
             </h2>
             <p>{selectedNotification.message}</p>
-            <p className="mt-4">{selectedNotification.description}</p>{" "}
-            {/* Display description */}
+            <p className="mt-4">{selectedNotification.description}</p>
             <p className="text-sm text-gray-500 mt-4">
               {`${selectedNotification.date}, ${selectedNotification.time} @ ${selectedNotification.location}`}
             </p>

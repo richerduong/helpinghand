@@ -1,167 +1,71 @@
 'use client';
-import React from 'react';
-import { useState, useEffect } from 'react';
-import supabase from '@/api/supabaseClient';
+import React, { useState, useEffect } from 'react';
+import { fetchVolunteersAndEvents, handleManualMatch } from './actions';
 import { profile, event } from '@/types/types';
-import { skillOptions } from '@/data/data';
 
 export default function AdminMatch() {
   const [volunteers, setVolunteers] = useState<profile[]>([]);
   const [events, setEvents] = useState<event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<event[]>([]); // New state for filtered events
+  const [filteredEvents, setFilteredEvents] = useState<event[]>([]);
   const [selectedVolunteer, setSelectedVolunteer] = useState<profile | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch only non-admin volunteers and events from Supabase
-    const fetchVolunteersAndEvents = async () => {
-      const { data: volunteerData, error: volunteerError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('is_admin', false); // Fetch only non-admin volunteers
-
-      const { data: eventData, error: eventError } = await supabase
-        .from('events')
-        .select('*');
-
-      if (volunteerError || eventError) {
-        console.error('Error fetching data:', volunteerError || eventError);
-        setError('Failed to fetch volunteers or events.');
+    const fetchData = async () => {
+      const { volunteers, events, error } = await fetchVolunteersAndEvents();
+      if (error) {
+        setError(error);
       } else {
-        setVolunteers(volunteerData || []);
-        setEvents(eventData || []);
+        setVolunteers(volunteers);
+        setEvents(events);
       }
       setLoading(false);
     };
 
-    fetchVolunteersAndEvents();
+    fetchData();
   }, []);
 
-  // Filter events based on the selected volunteer's skills and availability
   const filterEventsForVolunteer = (volunteer: profile) => {
     const matchedEvents = events.filter((event) => {
       const hasMatchingSkills = event.required_skills.some((skill) =>
-        volunteer.skills.some((volunteerSkill) => volunteerSkill === skill)
+        volunteer.skills.includes(skill)
       );
-  
       const isDateAvailable = volunteer.availability.some((availableDate) => {
         const eventDate = new Date(event.event_date);
         const volunteerDate = new Date(availableDate);
-  
-        // Compare the year, month, and day without considering the time or time zone
-        return (
-          eventDate.getFullYear() === volunteerDate.getFullYear() &&
-          eventDate.getMonth() === volunteerDate.getMonth() &&
-          eventDate.getDate() === volunteerDate.getDate()
-        );
+        return eventDate.toDateString() === volunteerDate.toDateString();
       });
-  
       return hasMatchingSkills && isDateAvailable;
     });
-  
     setFilteredEvents(matchedEvents);
   };
-  
 
-  // Handle volunteer selection
   const handleVolunteerSelect = (volunteerEmail: string) => {
     const selectedVolunteer = volunteers.find((v) => v.email === volunteerEmail) || null;
     setSelectedVolunteer(selectedVolunteer);
-
-    // Filter events for this volunteer
-    if (selectedVolunteer) {
-      filterEventsForVolunteer(selectedVolunteer);
-    }
+    if (selectedVolunteer) filterEventsForVolunteer(selectedVolunteer);
   };
 
-  // Handle manual match submission
-  const handleManualMatch = async () => {
+  const handleMatch = async () => {
     if (!selectedVolunteer || !selectedEvent) {
       alert('Please select both a volunteer and an event.');
       return;
     }
-  
-    try {
-      // Check if a match already exists in the volunteer_history table
-      const { data: existingMatch, error: checkError } = await supabase
-        .from('volunteer_history')
-        .select('*')
-        .eq('volunteer_id', selectedVolunteer.id) // Use volunteer_id
-        .eq('event_id', selectedEvent.id) // Use event_id
-        .maybeSingle(); // MaybeSingle allows us to not throw an error if no record is found
-  
-      if (checkError) {
-        console.error('Error checking volunteer history:', checkError);
-        alert('Error checking volunteer history.');
-        return;
-      }
-  
-      if (existingMatch) {
-        // If a match already exists, prevent the duplicate insertion
-        alert(`Volunteer ${selectedVolunteer.full_name} is already matched to event ${selectedEvent.event_name}.`);
-        return;
-      }
-  
-      // Insert the match into the volunteer_history table
-      const { error: historyError } = await supabase
-        .from('volunteer_history')
-        .insert([{
-          volunteer_id: selectedVolunteer.id, // Assuming you have access to the volunteer's ID
-          event_id: selectedEvent.id,
-          participation_status: 'upcoming', // Initial status
-          event_name: selectedEvent.event_name,
-          location: selectedEvent.location,
-          event_date: selectedEvent.event_date,
-        }]);
-  
-      if (historyError) {
-        console.error('Error inserting into volunteer history:', historyError);
-        alert('Error inserting volunteer match into history.');
-        return;
-      }
-  
-      // Insert the notification for the volunteer
-      const { error: notificationError } = await supabase
-      .from('notifications')
-      .insert([{
-        volunteer_id: selectedVolunteer.id,
-        message: `You have been matched to the event: ${selectedEvent.event_name}`,
-        event_name: selectedEvent.event_name,
-        date: selectedEvent.event_date,
-        time: new Date(selectedEvent.event_date).toLocaleTimeString(), // Adjust time as needed
-        location: selectedEvent.location,
-        is_read: false, // Default to unread
-        created_at: new Date(), // Set the creation time
-        description: `You are now scheduled to attend the event "${selectedEvent.event_name}" at ${selectedEvent.location}.`,
-      }]);
 
-      if (notificationError) {
-        console.error('Error sending notification:', notificationError);
-      }
-  
-      alert(`Volunteer ${selectedVolunteer.full_name} successfully matched to event ${selectedEvent.event_name}`);
-    } catch (error) {
-      console.error('Error during manual match:', error);
-      alert('An error occurred while matching the volunteer.');
+    const { success, message } = await handleManualMatch(selectedVolunteer, selectedEvent);
+    alert(message);
+
+    if (success) {
+      setSelectedVolunteer(null);
+      setSelectedEvent(null);
+      setFilteredEvents([]);
     }
-  
-    // Reset selection after match
-    setSelectedVolunteer(null);
-    setSelectedEvent(null);
-    setFilteredEvents([]);
   };
-  
 
-
-  if (loading) {
-    return <p>Loading volunteers and events...</p>;
-  }
-
-  if (error) {
-    return <p>{error}</p>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <>
@@ -209,7 +113,7 @@ export default function AdminMatch() {
       {/* Match button */}
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded-md"
-        onClick={handleManualMatch}
+        onClick={handleMatch}
         disabled={!selectedVolunteer || !selectedEvent}
       >
         Match Volunteer to Event

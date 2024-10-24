@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import supabase from '@/api/supabaseClient';
 import { Session } from '@supabase/supabase-js';
-import { useAuth } from '@/components/auth/AuthContext';
+import { useAuth } from '@/api/AuthContext';
 import { Menu, Transition } from '@headlessui/react';
 import { MenuIcon } from '@heroicons/react/outline';
 import React from 'react';

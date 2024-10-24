@@ -34,3 +34,10 @@ You can either visit our website at [https://helpinghand-t7.vercel.app/](https:/
    ```
 6. **Open your browser**:  
    Visit http://localhost:3000 in your browser to access the application
+
+## Testing
+- To execute the test suite, run:
+   ```
+   npm run test
+   ```
+   ![image](https://github.com/user-attachments/assets/d91ae44e-d265-4ce2-af73-3e07ab6e6331)

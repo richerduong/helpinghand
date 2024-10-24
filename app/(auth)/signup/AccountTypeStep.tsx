@@ -6,7 +6,7 @@ import { useFormStore } from './FormStore';
 import supabase from '@/api/supabaseClient';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useAuth } from '@/components/auth/AuthContext';
+import { useAuth } from '@/api/AuthContext';
 
 export default function AccountTypeStep() {
   const { step, setStep, email, password } = useFormStore();

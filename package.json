@@ -3,10 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "mv babel.config.js babel.config.js.bak",
     "dev": "next dev",
+    "postdev": "mv babel.config.js.bak babel.config.js",
+    "prebuild": "mv babel.config.js babel.config.js.bak",
     "build": "next build",
+    "postbuild": "mv babel.config.js.bak babel.config.js",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest --coverage"
   },
   "dependencies": {
     "@headlessui/react": "^2.1.10",
@@ -20,6 +25,7 @@
     "clsx": "^2.1.1",
     "next": "14.2.11",
     "next-auth": "^4.24.7",
+    "node-fetch": "^3.3.2",
     "react": "^18",
     "react-datepicker": "^7.3.0",
     "react-dom": "^18",
@@ -30,13 +36,27 @@
     "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.25.9",
+    "@babel/preset-env": "^7.25.9",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.25.9",
+    "@testing-library/jest-dom": "^6.6.2",
+    "@testing-library/react": "^16.0.1",
+    "@types/jest": "^29.5.13",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "babel-jest": "^29.7.0",
+    "dotenv": "^16.4.5",
     "eslint": "^8",
     "eslint-config-next": "14.2.11",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-mock-extended": "^4.0.0-beta1",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "ts-jest": "^29.2.5",
     "typescript": "^5"
   }
 }

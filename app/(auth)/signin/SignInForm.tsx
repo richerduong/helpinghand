@@ -10,7 +10,7 @@ import { validateEmail } from '@/utils/validations';
 import { useFormStore } from './FormStore';
 import { useRouter } from 'next/navigation';
 import supabase from '@/api/supabaseClient';
-import { useAuth } from '@/components/auth/AuthContext';
+import { useAuth } from '@/api/AuthContext';
 
 export default function SignInForm() {
   const {
