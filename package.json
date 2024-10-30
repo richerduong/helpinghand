@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "mv babel.config.js babel.config.js.bak",
+    "predev": "node rename-babel.js babel.config.js babel.config.js.bak",
     "dev": "next dev",
-    "postdev": "mv babel.config.js.bak babel.config.js",
-    "prebuild": "mv babel.config.js babel.config.js.bak",
+    "postdev": "node rename-babel.js babel.config.js.bak babel.config.js",
+    "prebuild": "node rename-babel.js babel.config.js babel.config.js.bak",
     "build": "next build",
-    "postbuild": "mv babel.config.js.bak babel.config.js",
+    "postbuild": "node rename-babel.js babel.config.js.bak babel.config.js",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --coverage"
