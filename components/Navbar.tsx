@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import * as NavigationMenu from '@radix-ui/react-navigation-menu';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import clsx from 'clsx';
-import Image from 'next/image';
-import supabase from '@/api/supabaseClient';
-import { Session } from '@supabase/supabase-js';
-import { useAuth } from '@/api/AuthContext';
-import { Menu, Transition } from '@headlessui/react';
-import { MenuIcon } from '@heroicons/react/outline';
-import React from 'react';
+import Link from "next/link";
+import * as NavigationMenu from "@radix-ui/react-navigation-menu";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import clsx from "clsx";
+import Image from "next/image";
+import supabase from "@/api/supabaseClient";
+import { Session } from "@supabase/supabase-js";
+import { useAuth } from "@/api/AuthContext";
+import { Menu, Transition } from "@headlessui/react";
+import { MenuIcon } from "@heroicons/react/outline";
+import React from "react";
 
 export default function Navbar() {
   const { session, setSession } = useAuth();
@@ -24,11 +24,11 @@ export default function Navbar() {
     const fetchProfile = async () => {
       if (session?.user?.email) {
         const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('email', session.user.email)
+          .from("profiles")
+          .select("is_admin")
+          .eq("email", session.user.email)
           .single();
-          
+
         setIsAdmin(profile?.is_admin || false); // Default to false if the profile or is_admin is undefined
       }
     };
@@ -39,7 +39,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setSession(null);
-    router.push('/');
+    router.push("/");
   };
 
   return (
@@ -66,7 +66,7 @@ export default function Navbar() {
           </NavigationMenu.Item>
         </div>
 
-        <div className={clsx('flex justify-end items-center gap-x-4')}>
+        <div className={clsx("flex justify-end items-center gap-x-4")}>
           {session && session.user && session.user.id ? (
             <>
               <div className="flex items-center gap-x-6">
@@ -78,10 +78,12 @@ export default function Navbar() {
                         <Link
                           href="/events/manage"
                           className={clsx(
-                            'text-lg font-semibold hover:text-orange py-4',
+                            "text-lg font-semibold hover:text-orange py-4",
                             {
-                              'text-orange border-b-4 border-orange': path === '/events/manage',
-                              'text-navbar-text hover:text-orange': path !== '/events/manage',
+                              "text-orange border-b-4 border-orange":
+                                path === "/events/manage",
+                              "text-navbar-text hover:text-orange":
+                                path !== "/events/manage",
                             }
                           )}
                         >
@@ -94,10 +96,12 @@ export default function Navbar() {
                         <Link
                           href="/events/matching"
                           className={clsx(
-                            'text-lg font-semibold hover:text-orange py-4',
+                            "text-lg font-semibold hover:text-orange py-4",
                             {
-                              'text-orange border-b-4 border-orange': path === '/events/matching',
-                              'text-navbar-text hover:text-orange': path !== '/events/matching',
+                              "text-orange border-b-4 border-orange":
+                                path === "/events/matching",
+                              "text-navbar-text hover:text-orange":
+                                path !== "/events/matching",
                             }
                           )}
                         >
@@ -112,12 +116,32 @@ export default function Navbar() {
                     <NavigationMenu.Item>
                       <NavigationMenu.Link asChild>
                         <Link
+                          href="/volunteer/home"
+                          className={clsx(
+                            "text-lg font-semibold hover:text-orange py-4",
+                            {
+                              "text-orange border-b-4 border-orange":
+                                path === "/volunteer/home",
+                              "text-navbar-text hover:text-orange":
+                                path !== "/volunteer/home",
+                            }
+                          )}
+                        >
+                          Events
+                        </Link>
+                      </NavigationMenu.Link>
+                    </NavigationMenu.Item>
+                    <NavigationMenu.Item>
+                      <NavigationMenu.Link asChild>
+                        <Link
                           href="/notifications"
                           className={clsx(
-                            'text-lg font-semibold hover:text-orange py-4',
+                            "text-lg font-semibold hover:text-orange py-4",
                             {
-                              'text-orange border-b-4 border-orange': path === '/notifications',
-                              'text-navbar-text hover:text-orange': path !== '/notifications',
+                              "text-orange border-b-4 border-orange":
+                                path === "/notifications",
+                              "text-navbar-text hover:text-orange":
+                                path !== "/notifications",
                             }
                           )}
                         >
@@ -130,10 +154,12 @@ export default function Navbar() {
                         <Link
                           href="/events/history"
                           className={clsx(
-                            'text-lg font-semibold hover:text-orange py-4',
+                            "text-lg font-semibold hover:text-orange py-4",
                             {
-                              'text-orange border-b-4 border-orange': path === '/events/history',
-                              'text-navbar-text hover:text-orange': path !== '/events/history',
+                              "text-orange border-b-4 border-orange":
+                                path === "/events/history",
+                              "text-navbar-text hover:text-orange":
+                                path !== "/events/history",
                             }
                           )}
                         >
@@ -167,8 +193,10 @@ export default function Navbar() {
                             <Link
                               href="/profile"
                               className={clsx(
-                                active ? 'bg-gray-100 text-orange' : 'text-navbar-text',
-                                'block px-4 py-2 text-lg'
+                                active
+                                  ? "bg-gray-100 text-orange"
+                                  : "text-navbar-text",
+                                "block px-4 py-2 text-lg"
                               )}
                             >
                               Profile
@@ -180,8 +208,10 @@ export default function Navbar() {
                             <button
                               onClick={handleLogout}
                               className={clsx(
-                                active ? 'bg-gray-100 text-orange' : 'text-navbar-text',
-                                'block w-full text-left px-4 py-2 text-lg'
+                                active
+                                  ? "bg-gray-100 text-orange"
+                                  : "text-navbar-text",
+                                "block w-full text-left px-4 py-2 text-lg"
                               )}
                             >
                               Sign Out
@@ -201,10 +231,12 @@ export default function Navbar() {
                   <Link
                     href="/signin"
                     className={clsx(
-                      'text-lg font-semibold hover:text-orange py-4 text-nowrap ml-4',
+                      "text-lg font-semibold hover:text-orange py-4 text-nowrap ml-4",
                       {
-                        'text-orange border-b-4 border-orange': path === '/signin',
-                        'text-navbar-text hover:text-orange': path !== '/signin',
+                        "text-orange border-b-4 border-orange":
+                          path === "/signin",
+                        "text-navbar-text hover:text-orange":
+                          path !== "/signin",
                       }
                     )}
                   >

@@ -88,7 +88,7 @@ const SideNav: React.FC = () => {
         >
           <Link href="/volunteer/home">Home</Link>
         </li>
-        <li
+        {/* <li
           className={`mb-4 p-3 rounded-md ${
             pathname === "/volunteer/notifications"
               ? "bg-orange text-white"
@@ -96,7 +96,7 @@ const SideNav: React.FC = () => {
           }`}
         >
           <Link href="/volunteer/notifications">Notifications</Link>
-        </li>
+        </li> */}
         <li
           className={`mb-4 p-3 rounded-md ${
             pathname === "/volunteer/events" ? "bg-orange text-white" : ""
