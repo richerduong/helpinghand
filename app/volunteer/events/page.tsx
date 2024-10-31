@@ -10,7 +10,7 @@ interface Event {
   description: string;
   location: string;
   date: string;
-  skills: string;
+  skills: string[];
   urgency: string;
 }
 
@@ -64,14 +64,14 @@ const EventsPage: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-2 mb-6">
             <input
               type="text"
-              placeholder="Where"
+              placeholder="location "
               className="p-2 border rounded-md flex-1"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <input
               type="date"
-              className="p-2 border rounded-md flex-1"
+              className="p-2 border rounded-md flex-1 text-gray-500"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
             />
@@ -100,7 +100,16 @@ const EventsPage: React.FC = () => {
                   <p className="text-gray-600 mb-2">{event.description}</p>
                   <p className="text-gray-500">{event.date}</p>
                   <p className="text-gray-500">{event.location}</p>
-                  <p className="text-gray-400">{event.skills}</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {event.skills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="inline-block bg-gray-200 rounded mb-2 px-3 py-1 text-sm font-semibold text-gray-700"
+                      >
+                        {skill.trim()}
+                      </span>
+                    ))}
+                  </div>
                   <p className="text-gray-400">{event.urgency}</p>
                 </div>
               ))

@@ -116,14 +116,14 @@ export default function Navbar() {
                     <NavigationMenu.Item>
                       <NavigationMenu.Link asChild>
                         <Link
-                          href="/volunteer/home"
+                          href="/volunteer/events"
                           className={clsx(
                             "text-lg font-semibold hover:text-orange py-4",
                             {
                               "text-orange border-b-4 border-orange":
-                                path === "/volunteer/home",
+                                path === "/volunteer/events",
                               "text-navbar-text hover:text-orange":
-                                path !== "/volunteer/home",
+                                path !== "/volunteer/events",
                             }
                           )}
                         >

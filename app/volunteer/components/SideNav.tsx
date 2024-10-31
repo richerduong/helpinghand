@@ -23,16 +23,11 @@ const SideNav: React.FC = () => {
   return (
     <nav className="w-[20rem] bg-white h-screen p-6 text-gray">
       {/* Account Dropdown */}
-      <div className="relative mb-4">
+      {/* <div className="relative mb-4">
         <button
           className="flex items-center space-x-2 p-3 rounded-md bg-gray-100 hover:bg-gray-200 w-full"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
-          <img
-            src={user.profilePicture}
-            alt="Profile"
-            className="w-10 h-10 rounded-full"
-          />
           <div className="text-left">
             <div className="font-semibold">{user.name}</div>
             <div className="text-sm text-gray-600">{user.email}</div>
@@ -63,11 +58,6 @@ const SideNav: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="block p-3 hover:bg-gray-100">
-                  Switch to Admin View
-                </Link>
-              </li>
-              <li>
                 <button
                   onClick={handleLogout}
                   className="w-full text-left block p-3 hover:bg-gray-100"
@@ -78,7 +68,7 @@ const SideNav: React.FC = () => {
             </ul>
           </div>
         )}
-      </div>
+      </div> */}
 
       <ul>
         <li
