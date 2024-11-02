@@ -5,7 +5,7 @@ export const fetchEvents = async () => {
     const { data, error } = await supabase
       .from("events")
       .select(
-        "id, event_name, event_description, location, event_date, created_at, required_skills, urgency"
+        "id, event_name, event_description, location, event_date, created_at, required_skills, urgency, image"
       )
       .order("event_date", { ascending: true });
 
@@ -32,6 +32,7 @@ export const fetchEvents = async () => {
         created_at: new Date(event.created_at).toISOString().split("T")[0],
         skills: skillsArray,
         urgency: event.urgency,
+        image: event.image,
       };
     });
 

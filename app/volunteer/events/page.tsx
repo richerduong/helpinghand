@@ -12,6 +12,7 @@ interface Event {
   date: string;
   skills: string[];
   urgency: string;
+  image?: string;
 }
 
 const EventsPage: React.FC = () => {
@@ -96,6 +97,13 @@ const EventsPage: React.FC = () => {
                   key={event.id}
                   className="p-4 border rounded-md bg-white shadow-md"
                 >
+                   {event.image && ( //Image
+                      <img
+                        src={event.image}
+                        alt={event.name}
+                        className="w-full h-32 object-cover rounded-md mb-2"
+                      />
+                    )}
                   <h3 className="text-lg font-semibold mb-2">{event.name}</h3>
                   <p className="text-gray-600 mb-2">{event.description}</p>
                   <p className="text-gray-500">{event.date}</p>

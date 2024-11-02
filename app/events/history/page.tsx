@@ -46,6 +46,12 @@ export default function History() {
   if (history.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen">
+        <img
+          src="/images/ppl.png"
+          alt="Background"
+          style={{ width: '1100px', height: 'auto' }}
+          className="absolute bottom-0 left-0 z-0"
+        />
         <p className="text-2xl text-gray-600">No volunteer history available.</p>
       </div>
     );
@@ -54,6 +60,12 @@ export default function History() {
   // Display the fetched data
   return (
     <div>
+      <img
+          src="/images/ppl.png"
+          alt="Background"
+          style={{ width: '1100px', height: 'auto' }}
+          className="absolute bottom-0 left-0 z-0"
+        />
       <h1 className="text-xl font-semibold mb-4 text-center">Volunteer Participation History</h1>
       <table className="min-w-full table-auto">
         <thead>
