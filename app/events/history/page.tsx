@@ -27,8 +27,8 @@ export default function History() {
   // Handle loading state
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Loading volunteer history...</p>
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <p className="text-lg text-gray-700 animate-pulse">Loading volunteer history...</p>
       </div>
     );
   }
@@ -36,8 +36,8 @@ export default function History() {
   // Handle error state
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p>{error}</p>
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <p className="text-lg text-red-600">{error}</p>
       </div>
     );
   }
@@ -45,13 +45,7 @@ export default function History() {
   // Handle empty data
   if (history.length === 0) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <img
-          src="/images/ppl.png"
-          alt="Background"
-          style={{ width: '1100px', height: 'auto' }}
-          className="absolute bottom-0 left-0 z-0"
-        />
+      <div className="flex justify-center items-center h-screen bg-gray-100">
         <p className="text-2xl text-gray-600">No volunteer history available.</p>
       </div>
     );
@@ -59,33 +53,38 @@ export default function History() {
 
   // Display the fetched data
   return (
-    <div>
-      <img
-          src="/images/ppl.png"
-          alt="Background"
-          style={{ width: '1100px', height: 'auto' }}
-          className="absolute bottom-0 left-0 z-0"
-        />
-      <h1 className="text-xl font-semibold mb-4 text-center">Volunteer Participation History</h1>
-      <table className="min-w-full table-auto">
-        <thead>
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+      <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Volunteer Participation History</h1>
+      <table className="min-w-full bg-white border rounded-lg overflow-hidden shadow-sm">
+        <thead className="bg-gray-800 text-white">
           <tr>
-            <th className="px-4 py-2 border">Event Name</th>
-            <th className="px-4 py-2 border">Location</th>
-            <th className="px-4 py-2 border">Event Date</th>
-            <th className="px-4 py-2 border">Status</th>
+            <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider border-b border-gray-200">
+              Event Name
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider border-b border-gray-200">
+              Location
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider border-b border-gray-200">
+              Event Date
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider border-b border-gray-200">
+              Status
+            </th>
           </tr>
         </thead>
         <tbody>
           {history.map((event, index) => (
-            <tr key={index} className="text-center">
-              <td className="border px-4 py-2">{event.event_name}</td>
-              <td className="border px-4 py-2">{event.location}</td>
-              <td className="border px-4 py-2">{new Date(event.event_date).toLocaleDateString()}</td>
-              <td className="border px-4 py-2">
-                {event.participation_status === 'completed'
-                  ? <span className="text-green-500">Completed</span>
-                  : <span className="text-blue-500">Upcoming</span>}
+            <tr
+              key={index}
+              className={`text-center ${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}
+            >
+              <td className="border-b border-gray-200 px-6 py-4 text-gray-700">{event.event_name}</td>
+              <td className="border-b border-gray-200 px-6 py-4 text-gray-700">{event.location}</td>
+              <td className="border-b border-gray-200 px-6 py-4 text-gray-700">
+                {new Date(event.event_date).toLocaleDateString()}
+              </td>
+              <td className={`border-b border-gray-200 px-6 py-4 font-semibold`}>
+                {event.participation_status}
               </td>
             </tr>
           ))}
