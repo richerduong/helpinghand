@@ -1,59 +1,129 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
+import { fetchEvents } from "./action";
+
+interface Event {
+  id: number;
+  name: string;
+  description: string;
+  location: string;
+  date: string;
+  skills: string[];
+  urgency: string;
+  image?: string;
+}
 
 const EventsPage: React.FC = () => {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
+
+  useEffect(() => {
+    const getEvents = async () => {
+      const { events, error } = await fetchEvents();
+      if (error) {
+        setError(error);
+      } else {
+        setEvents(events || []);
+        setFilteredEvents(events || []);
+      }
+      setLoading(false);
+    };
+
+    getEvents();
+  }, []);
+
+  // Filter events based on search term and selected date
+  useEffect(() => {
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    const filtered = events.filter((event) => {
+      const matchesLocation = event.location
+        .toLowerCase()
+        .includes(lowercasedSearchTerm);
+      const matchesDate = selectedDate ? event.date === selectedDate : true;
+      return matchesLocation && matchesDate;
+    });
+    setFilteredEvents(filtered);
+  }, [searchTerm, selectedDate, events]);
+
+  // Function to clear search inputs
+  const clearSearchInputs = () => {
+    setSearchTerm("");
+    setSelectedDate("");
+  };
+
   return (
     <Layout>
       <div className="flex h-screen">
-        {/* Main Content */}
         <main className="flex-1">
           {/* Horizontal Form */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-2 mb-6">
             <input
               type="text"
-              placeholder="Organization"
+              placeholder="location "
               className="p-2 border rounded-md flex-1"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
             <input
-              type="text"
-              placeholder="Where"
-              className="p-2 border rounded-md flex-1"
+              type="date"
+              className="p-2 border rounded-md flex-1 text-gray-500"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
             />
-            <input
-              type="text"
-              placeholder="When"
-              className="p-2 border rounded-md flex-1"
-            />
-            <button className="bg-orange-500 text-white p-2 rounded-md flex-none">
-              Search
+            {/* Clear Button */}
+            <button
+              className="bg-gray-300 text-black p-2 px-4 rounded-md flex-none"
+              onClick={clearSearchInputs}
+            >
+              Clear
             </button>
-          </div>
-
-          {/* Event Type Filters */}
-          <div className="flex flex-wrap gap-4 mb-6">
-            <button className="bg-gray-200 p-2 rounded-md">Category 1</button>
-            <button className="bg-gray-200 p-2 rounded-md">Category 2</button>
-            <button className="bg-gray-200 p-2 rounded-md">Category 3</button>
-            <button className="bg-gray-200 p-2 rounded-md">Category 4</button>
-          </div>
-
-          {/* Search Bar */}
-          <div className="flex items-center mb-6">
-            <input
-              type="text"
-              placeholder="Search events by name"
-              className="p-2 border rounded-md flex-1"
-            />
           </div>
 
           {/* Events Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {/* Event Box */}
-            <div className="p-4 border rounded-md bg-white shadow-md">
-              <h3 className="text-lg font-semibold mb-2">Event Title</h3>
-              <p className="text-gray-600 mb-2">Event Description</p>
-              <p className="text-gray-500">Date & Time</p>
-            </div>
+            {loading ? (
+              <p>Loading events...</p>
+            ) : error ? (
+              <p>{error}</p>
+            ) : filteredEvents.length > 0 ? (
+              filteredEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className="p-4 border rounded-md bg-white shadow-md"
+                >
+                   {event.image && ( //Image
+                      <img
+                        src={event.image}
+                        alt={event.name}
+                        className="w-full h-32 object-cover rounded-md mb-2"
+                      />
+                    )}
+                  <h3 className="text-lg font-semibold mb-2">{event.name}</h3>
+                  <p className="text-gray-600 mb-2">{event.description}</p>
+                  <p className="text-gray-500">{event.date}</p>
+                  <p className="text-gray-500">{event.location}</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {event.skills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="inline-block bg-gray-200 rounded mb-2 px-3 py-1 text-sm font-semibold text-gray-700"
+                      >
+                        {skill.trim()}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-gray-400">{event.urgency}</p>
+                </div>
+              ))
+            ) : (
+              <p>No events available.</p>
+            )}
           </div>
         </main>
       </div>
