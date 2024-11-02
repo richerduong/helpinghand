@@ -50,9 +50,9 @@ export const fetchVolunteerHistory = async (): Promise<{
 
       // Compare the event date with today's date to set the status dynamically
       if (eventDate < today) {
-        return { ...event, participation_status: 'completed' };
+        return { ...event, participation_status: 'Completed' };
       } else if (eventDate >= today) {
-        return { ...event, participation_status: 'upcoming' };
+        return { ...event, participation_status: 'Upcoming' };
       }
       return event;
     });
